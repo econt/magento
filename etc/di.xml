@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="Oxl\Delivery\Api\OxlDeliveryManagementInterface" type="Oxl\Delivery\Model\Api\OxlDeliveryManagement" />
+    <preference for="Oxl\Delivery\Api\Data\OxlDeliveryInterface" type="Oxl\Delivery\Model\OxlDelivery" />
+</config>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="extra_shipment_info">
+            <container name="oxl.delivery.tracking" htmlTag="div" htmlClass="sidebar sidebar-additional" before="-">
+                <block class="Oxl\Delivery\Block\Adminhtml\Shipping\OxlTracking" 
+                    as="econt.trackingInfo" 
+                    name="oxl_tracking_info" 
+                    template="Oxl_Delivery::tracking/tracking_info.phtml"  
+                    before="-">                
+                </block>
+                <!-- <arguments>
+                    <argument name="title" xsi:type="string" translate="false">Генерирай етикет</argument>
+                    <argument name="css_class" xsi:type="string">econt-waybill</argument>
+                </arguments> -->
+            </container>        
+        </referenceContainer>
+    </body>
+</page>

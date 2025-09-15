@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+      <carriers>
+        <econtdelivery>
+          <active>0</active>
+          <sallowspecific>0</sallowspecific>
+          <!-- <price>0</price> -->
+          <model>Oxl\Delivery\Model\Carrier\Shippingmodule</model>
+          <name>Econt Shipping Module</name>
+          <title>Deliver With Econt</title>
+          <specificerrmsg>This shipping method is not available. To use this shipping method, please contact us.</specificerrmsg>
+          <sort_order>15</sort_order>
+        </econtdelivery>
+      </carriers>
+    </default>
+</config>

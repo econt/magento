@@ -1,0 +1,194 @@
+<?php
+/**
+ * Copyright © Magento, Inc. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+// @codingStandardsIgnoreFile
+
+?>
+<?php /** @var $block Oxl\Delivery\Block\Adminhtml\Shipping\OxlTracking */?>
+<script>
+require([
+    'jquery', 
+    'mage/template',
+    'Magento_Ui/js/modal/modal',
+    'loader', 
+    'prototype'
+], function(dwe, mageTemplate, modal){
+    //<![CDATA[
+    var oxlTrackingInfo;
+    oxlTrackingInfo = {
+        econtUrl: "<?= $this->helper('Oxl\Delivery\Helper\Data')->get_service_url() ?>",
+        econtPrivateKey: "<?= $this->helper('Oxl\Delivery\Helper\Data')->get_private_key() ?>",
+        template: mageTemplate('#oxl_tracking_template'),
+        hasTracking: false,
+        waybill_url: '',
+        main: function() {
+            alert('main');
+        },
+        check: function (order_id, waybill_id = 99999999, currency = "<?= $block->getCurrency() ?>", s = null, i = null) {
+            dwe("body").trigger('processStart');
+            dwe.ajax({
+                url: this.econtUrl + 'services/OrdersService.getTrace.json',
+                data: JSON.stringify({
+                    "id": "",
+                    "orderNumber": <?= $block->getOrderId() ?>,
+                    "status": "",
+                    "orderTime": "",
+                    "cod": "",
+                    "partialDelivery": "",
+                    // "currency": wcSettings.currency.code,
+                    "currency": currency,
+                    "shipmentDescription": "",
+                    "shipmentNumber": "",
+                }),
+                type: "POST",
+                dataType: 'json',
+                contentType: 'application/json',
+                beforeSend: function ( xhr ) {
+                    xhr.setRequestHeader ( "Authorization", oxlTrackingInfo.econtPrivateKey );
+                },
+                success:function( e ){       
+                    if ( e.shipmentNumber ) {
+                        oxlTrackingInfo.updateButtons();
+                        oxlTrackingInfo.addTrackingCode( e );
+                    }                    
+                },
+                // handle error (alert the error)
+                error: function ( error ) {
+                    alert( 'Отговор от Еконт: ' + error.responseJSON.message + "\r\nСървърен код - " + error.status + ' ( ' + error.statusText + ' ).');
+                    if ( s && i ) {
+                        s.css('visibility', 'visible');
+                        dwe(i).removeClass('is-active');
+                    }
+                }
+            });
+            setTimeout(function(){
+                dwe("body").trigger('processStop');
+            }, 2000)
+        },
+        loadModal: function() {
+            var data;
+            var progressTmpl = mageTemplate('#oxl_tracking_template');
+            var tmpl;
+
+            if(this.hasTracking) {
+                window.open( this.waybill_url, '_blank' )
+            } else {
+                data = {
+                    type: "popup",
+                    modalClass: "oxl-modal",
+                    responsive: true,
+                    responsiveClass: "modal-responsive",
+                    title: "Deliver With Econt",
+                    buttons: []
+                };            
+                dwe('#oxl-modal').modal(data);
+                dwe('#oxl-modal').modal('openModal');
+                
+                tmpl = progressTmpl({
+                    data: {
+                        url: this.econtUrl,
+                        order_number: <?= $block->getOrderId() ?>,
+                        token: this.econtPrivateKey
+                    }
+                });
+                dwe('#oxl-modal').empty();
+                dwe('#oxl-modal').append(tmpl);
+            }            
+        },
+        closeModal : function() {            
+            dwe('#oxl-modal').modal('closeModal');
+        },
+        addTrackingCode: function(data) {
+            var id;
+            dwe("body").trigger('processStart');
+            trackingControl.add();
+            id = dwe('tbody#track_row_container tr').length;
+            setTimeout(function() {
+                dwe('#trackingT' + id).val('Econt');
+                dwe('#trackingN' + id).val(data.shipmentNumber);
+            }, 800);
+            this.waybill_url = data.pdfURL;
+            dwe("body").trigger('processStop');
+        },
+        updateButtons: function() {
+            dwe('#oxl-tracking-status span').text('Print');
+            this.hasTracking = true;
+        }
+    };    
+
+    window.oxlTrackingInfo = oxlTrackingInfo;
+
+    window.addEventListener( 'message', function( message ) {
+    /**
+     * Да правя проверка дали шипинга има тракинг още в началото. Ако да - да пише отпечатай.
+     * Като натисна чек статус, ако има тракинг, да обновявам нещата и да пиша отпечатай.
+     * Като натисна генерирай, след модала, да обновявам нещата и да пиша отпечатай и да слагам тракинга в реда и да отварям шипинга в нов прозорец
+     */
+    /**
+     * check if this "message" comes from econt delivery system
+     */
+    if(message.origin.indexOf("//delivery") < 0 ){
+	    return;
+    }
+      
+    if(message.data.event === 'cancel' ) {
+        oxlTrackingInfo.closeModal();
+    } else if( message.data.event === 'confirm' && Object.keys(message.data.shipmentStatus).length ) {
+        oxlTrackingInfo.updateButtons();
+        oxlTrackingInfo.closeModal();
+        oxlTrackingInfo.addTrackingCode( message.data.shipmentStatus );
+        if( message.data.printPdf ) {
+            window.open( message.data.shipmentStatus.pdfURL, '_blank' )
+        }      
+    }    
+  })
+
+  return oxlTrackingInfo
+    //]]>
+
+});
+</script>
+<script id="oxl_tracking_template" type="text/x-magento-template">    
+    <iframe src="<%- data.url %>create_label.php?order_number=<%- data.order_number %>&token=<%- data.token %>" 
+        frameborder="0" 
+        width="100%" 
+        height="800px"
+    ></iframe>
+</script>
+<div class="admin__page-section-item order-shipping-address">
+    <?php /* Shipping Address */ ?>
+    <div class="admin__page-section-item-title">
+        <span class="title"><?= /* @escapeNotVerified */ __('Generate Waybill') ?></span>
+    </div>
+    <div class="admin__page-section-item-content shipping-description-wrapper">
+        <div class="shipping-description-content">
+            <div id="oxl-modal"></div>
+        </div>
+    </div>
+    <div class="admin__control-table-wrapper" style="display: flex">
+        <div class="dashboard-advanced-reports-actions">
+            <button id="oxl-tracking-status" type="button" class="action action-advanced-reports" 
+                data-index="analytics-service-link" 
+                title="Generate Waybill" 
+                onclick="oxlTrackingInfo.loadModal()" 
+                data-ui-id="oxl-tracking-status">
+                <span>Generate</span>
+            </button>
+        </div>
+        <button id="oxl_check_status" title="Check Tracking Status" type="button" class="action-default scalable" onclick="oxlTrackingInfo.check()" data-ui-id="oxl-check-tracking-status">
+            <span>Check status</span>
+        </button>
+        <?= $block->hasTracking() ?>
+    </div>
+</div>
+
+<style type="text/css">
+    .oxl-modal .modal-inner-wrap{ 
+        width: 70%;
+        padding-bottom: 15px;
+        max-width: 800px;
+    }
+</style>

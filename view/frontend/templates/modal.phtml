@@ -1,0 +1,36 @@
+<div id="meee">
+    <div id="econt-iframe-modal">
+        <div id="place_iframe_here" class="content"></div>
+    </div>
+</div>
+
+<?php
+    $ajaxurl = $block->getAjaxUrl();
+?>
+<script type="text/x-magento-init">
+    {
+        "*": {
+            "Oxl_Delivery/js/view/cms-block": {
+                "AjaxUrl": "<?php echo $ajaxurl; ?>"
+            }
+        }
+    }
+</script>
+
+<style>
+    #place_iframe_here {
+        padding-top: 25px;
+    }
+    
+    #place_iframe_here > iframe {
+        width: 100%;
+        min-height: 500px;
+        border: none;
+        height: 700px;
+        overflow: hidden
+    }
+
+    .modal-content {
+        font-size: 16px;
+    }
+</style>

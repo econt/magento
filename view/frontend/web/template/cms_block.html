@@ -1,0 +1,23 @@
+<!-- <div data-bind="html: window.checkoutConfig.checkout_block"> -->
+<div>
+    <button type="button" class="action" data-trigger="trigger">
+        <span data-bind="i18n: 'Click Here'"></span>
+    </button>
+    <div data-bind="mageInit: {
+            'Magento_Ui/js/modal/modal':{
+                'type': 'popup',
+                'title': 'Popup title',
+                'trigger': '[data-trigger=trigger]',
+                'responsive': true,
+                'buttons': [{
+                    text: jQuery.mage.__('Submit'),
+                    class: 'action'
+                }]
+            }}">
+        <div class="content">
+            Popup Content
+        </div>
+    </div>
+</div>
+
+<div id="ajaxresponse"></div>

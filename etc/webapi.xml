@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <!-- test api Group -->
+    <route url="/V1/econt/delivery/get-api-data" method="GET">
+        <service class="Oxl\Delivery\Api\OxlDeliveryManagementInterface" method="getApiData"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+        <data>
+            <parameter name="id">%id%</parameter>
+        </data>
+    </route>
+    <route url="/V1/econt/delivery/get-iframe-data" method="GET">
+        <service class="Oxl\Delivery\Api\OxlDeliveryManagementInterface" method="getIframeData"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    <route url="/V1/econt/delivery/set-payment-data" method="POST">
+        <service class="Oxl\Delivery\Api\OxlDeliveryManagementInterface" method="setPaymentData"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+        <data>
+            <parameter name="econtId" force="true">%econt_id%</parameter>
+            <parameter name="shippingPrice" force="true">%shipping_price%</parameter>
+            <parameter name="shippingPriceCod" force="true">%shipping_price_cod%</parameter>
+        </data>
+    </route>
+</routes>
