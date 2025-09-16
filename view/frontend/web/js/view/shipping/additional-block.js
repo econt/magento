@@ -37,12 +37,6 @@ define([
         econtModalHelper.showAlert(content, data, proceed, modal)
     });
 
-    $(function() {
-        $('#econtGetModalData').on('click', function() {
-            econtModalHelper.loadModal();
-        });
-    });
-
     return Component.extend({
         defaults: {
             template: {
