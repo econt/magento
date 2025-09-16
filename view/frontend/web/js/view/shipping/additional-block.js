@@ -36,10 +36,27 @@ define([
         
         econtModalHelper.showAlert(content, data, proceed, modal)
     });
-    
+
+    $(function() {
+        $('#econtGetModalData').on('click', function() {
+            econtModalHelper.loadModal();
+        });
+    });
+
     return Component.extend({
         defaults: {
-            template: 'Oxl_Delivery/shipping/additional-block'
+            template: {
+                name: 'Oxl_Delivery/shipping/additional-block',
+                afterRender: function () {
+                    const button = document.getElementById('econtGetModalData');
+
+                    if (button) {
+                        button.addEventListener('click', function() {
+                            econtModalHelper.loadModal();
+                        });
+                    }
+                }
+            }
         }
     });
 });
