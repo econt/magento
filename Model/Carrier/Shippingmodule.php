@@ -31,8 +31,6 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
      */
     private $rateMethodFactory;
 
-    protected $_customerSession;
-
     protected $_checkoutSession;
 
     /**
@@ -51,15 +49,13 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
         \Psr\Log\LoggerInterface $logger,
         \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
-        array $data = [],
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Checkout\Model\Session $checkoutSession
+        \Magento\Checkout\Model\Session $checkoutSession,
+        array $data = []
     ) {
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
 
         $this->rateResultFactory = $rateResultFactory;
         $this->rateMethodFactory = $rateMethodFactory;
-        $this->_customerSession = $customerSession;
         $this->_checkoutSession = $checkoutSession;
     }
 
