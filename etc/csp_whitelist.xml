@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<csp_whitelist xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:noNamespaceSchemaLocation="urn:magento:framework:Csp/etc/csp_whitelist.xsd">
+    <policies>
+        <policy id="script-src">
+            <values>
+                <value id="econt-script-demo" type="host">delivery.demo.econt.com</value>
+                <value id="econt-script-prod" type="host">delivery.econt.com</value>
+            </values>
+        </policy>
+
+        <policy id="frame-src">
+            <values>
+                <value id="econt-frame-demo" type="host">delivery.demo.econt.com</value>
+                <value id="econt-frame-prod" type="host">delivery.econt.com</value>
+            </values>
+        </policy>
+
+        <policy id="connect-src">
+            <values>
+                <value id="econt-connect-demo" type="host">delivery.demo.econt.com</value>
+                <value id="econt-connect-prod" type="host">delivery.econt.com</value>
+            </values>
+        </policy>
+    </policies>
+</csp_whitelist>

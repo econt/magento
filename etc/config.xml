@@ -5,7 +5,6 @@
         <econtdelivery>
           <active>0</active>
           <sallowspecific>0</sallowspecific>
-          <!-- <price>0</price> -->
           <model>Oxl\Delivery\Model\Carrier\Shippingmodule</model>
           <name>Econt Shipping Module</name>
           <title>Deliver With Econt</title>

@@ -23,12 +23,6 @@
         "OSL-3.0",
         "AFL-3.0"
     ],
-    "authors": [
-        {
-            "name": "Bogomil Krustev",
-            "email": "bogomil.krustev@kdconsult.eu"
-        }
-    ],
     "minimum-stability": "stable",
     "autoload": {
         "files": [
@@ -38,5 +32,5 @@
             "Oxl\\Delivery\\": ""
         }
     },
-    "version": "1.0.1"
+    "version": "1.0.2"
 }
