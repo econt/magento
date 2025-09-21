@@ -2,25 +2,41 @@
 
 namespace Oxl\Delivery\Helper;
 
+use Magento\Framework\App\Config\ScopeConfigInterface;
 use Oxl\Delivery\Model\OxlDelivery;
-use \Magento\Framework\App\Helper\Context;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\HTTP\ClientInterface;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
+    /**
+     * @var ClientInterface
+     */
+    protected $client;
 
-    protected $logger;
+    /**
+     * @var \Magento\Framework\App\Helper\Context
+     */
+    protected $context;
 
+    /**
+     * Get the module config data
+     *
+     * @param \Magento\Framework\App\Helper\Context $context
+     * @param \Magento\Framework\HTTP\ClientInterface $client
+     */
     public function __construct(
         Context $context,
-        \Psr\Log\LoggerInterface $logger
+        ClientInterface $client
     ) {
         parent::__construct($context);
-        $this->logger = $logger;
+        $this->client = $client;
     }
 
     /**
      * Get the module config data
      *
+     * @param string $config_path The config path
      * @return string
      */
     public function getConfig($config_path)
@@ -78,6 +94,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * The tracking url
      *
+     * @param string $code The tracking code
      * @return string
      */
     public function getTrackingUrl($code)
@@ -99,24 +116,23 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $endpoint = $this->getServiceUrl(array_key_exists('demo_service', $new_settings));
         $secret = $new_settings['private_key'];
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $endpoint . "services/OrdersService.getTrace.json");
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, [
-            'Content-Type: application/json',
-            "Authorization: " . $secret
-        ]);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode([
+        $url = $endpoint . "services/OrdersService.getTrace.json";
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization' => $secret
+        ];
+        $payload = json_encode([
             'orderNumber' => $order_number
-        ]));
-        curl_setopt($curl, CURLOPT_TIMEOUT, 6);
-        $res = curl_exec($curl);
+        ]);
+        $this->client->setHeaders($headers);
+        $this->client->setOptions([
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => false,
+            CURLOPT_TIMEOUT => 6
+        ]);
+        $this->client->post($url, $payload);
+        $res = $this->client->getBody();
         $response = json_decode($res, true);
-
-        curl_close($curl);
 
         // if( is_array( $response ) && array_key_exists('type', $response) && $response['type'] == 'ExAccessDenied' ) {
         //     return $response;
@@ -153,7 +169,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $conf = ['private_key' => $this->getPrivateKey()];
         $data = $this->checkEcontConfiguration($conf, $order_number);
         if (!array_key_exists('pdfURL', $data)) {
-            $this->logger->warning(__('Econt: Waybill generation failed. No PDF URL returned.'));
+            $this->_logger->warning(__('Econt: Waybill generation failed. No PDF URL returned.'));
             return '#';
         }
         return $data['pdfURL'];
