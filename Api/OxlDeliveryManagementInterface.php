@@ -5,7 +5,7 @@ namespace Oxl\Delivery\Api;
 interface OxlDeliveryManagementInterface
 {
     /**
-     * get test Api data.
+     * Get test Api data.
      *
      * @api
      *
@@ -16,7 +16,7 @@ interface OxlDeliveryManagementInterface
     public function getApiData( $id );
 
     /**
-     * get test Api data.
+     * Get test Api data.
      *
      * @api     
      * 
@@ -25,7 +25,7 @@ interface OxlDeliveryManagementInterface
     public function getIframeData();
 
     /**
-     * set payment data.
+     * Set payment data.
      *
      * @api     
      * 
