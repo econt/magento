@@ -19,8 +19,8 @@ require([
     //<![CDATA[
     var oxlTrackingInfo;
     oxlTrackingInfo = {
-        econtUrl: "<?= $this->helper('Oxl\Delivery\Helper\Data')->get_service_url() ?>",
-        econtPrivateKey: "<?= $this->helper('Oxl\Delivery\Helper\Data')->get_private_key() ?>",
+        econtUrl: "<?= $this->helper('Oxl\Delivery\Helper\Data')->getServiceUrl() ?>",
+        econtPrivateKey: "<?= $this->helper('Oxl\Delivery\Helper\Data')->getPrivateKey() ?>",
         template: mageTemplate('#oxl_tracking_template'),
         hasTracking: false,
         waybill_url: '',

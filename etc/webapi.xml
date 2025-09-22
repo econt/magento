@@ -7,9 +7,6 @@
         <resources>
             <resource ref="anonymous"/>
         </resources>
-        <data>
-            <parameter name="id">%id%</parameter>
-        </data>
     </route>
     <route url="/V1/econt/delivery/get-iframe-data" method="GET">
         <service class="Oxl\Delivery\Api\OxlDeliveryManagementInterface" method="getIframeData"/>
@@ -22,10 +19,5 @@
         <resources>
             <resource ref="anonymous"/>
         </resources>
-        <data>
-            <parameter name="econtId" force="true">%econt_id%</parameter>
-            <parameter name="shippingPrice" force="true">%shipping_price%</parameter>
-            <parameter name="shippingPriceCod" force="true">%shipping_price_cod%</parameter>
-        </data>
     </route>
 </routes>

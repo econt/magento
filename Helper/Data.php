@@ -134,11 +134,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $res = $this->client->getBody();
         $response = json_decode($res, true);
 
-        // if( is_array( $response ) && array_key_exists('type', $response) && $response['type'] == 'ExAccessDenied' ) {
-        //     return $response;
-  
-        // }
-
         return $response;
     }
 

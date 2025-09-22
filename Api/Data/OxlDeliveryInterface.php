@@ -21,48 +21,11 @@ interface OxlDeliveryInterface
     /**#@+
      * Constants for keys of data array. Identical to the name of the getter in snake case
      */
-    const ENTITY_ID = 'entity_id';
+    public const DESC = 'description';
 
-    const TITLE = 'title';
+    public const ECONT_CUSTOMR_INFO_URL = 'url';
 
-    const DESC = 'description';
-
-    const ECONT_CUSTOMR_INFO_URL = 'url';
-
-    const ECONT_SHOP_ID = 'id_shop';
-    /**#@-*/
-
-    /**
-     * Get ID.
-     *
-     * @return int|null
-     */
-    public function getId();
-
-    /**
-     * Set ID.
-     *
-     * @param int $id
-     *
-     * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
-     */
-    public function setId($id);
-
-    /**
-     * Get title.
-     *
-     * @return string|null
-     */
-    public function getTitle();
-
-    /**
-     * Set title.
-     *
-     * @param string $title
-     *
-     * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
-     */
-    public function setTitle($title);
+    public const ECONT_SHOP_ID = 'id_shop';
 
     /**
      * Get desc.
@@ -77,10 +40,10 @@ interface OxlDeliveryInterface
      * @param bool $key
      * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
      */
-    public function setPrivateKey( $key );
+    public function setPrivateKey($key);
 
     /**
-     * undocumented function summary
+     * Undocumented function summary
      *
      * Undocumented function long description
      *
@@ -89,17 +52,18 @@ interface OxlDeliveryInterface
     public function getEcontCustomerInfoUrl();
 
     /**
-     * undocumented function summary
+     * Undocumented function summary
      *
      * Undocumented function long description
+     *
      * @param bool $key
      *
      * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
      **/
-    public function setEcontCustomerInfoUrl( $key );
+    public function setEcontCustomerInfoUrl($key);
 
     /**
-     * undocumented function summary
+     * Undocumented function summary
      *
      * Undocumented function long description
      *
@@ -108,33 +72,33 @@ interface OxlDeliveryInterface
     public function getEcontShopId();
 
     /**
-     * undocumented function summary
+     * Undocumented function summary
      *
      * Undocumented function long description
-     * 
+     *
      * @param bool $key
-     * 
+     *
      * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
      **/
-    public function setEcontShopId( $key );
+    public function setEcontShopId($key);
 
     /**
-     * undocumented function summary
+     * Undocumented function summary
      *
      * Undocumented function long description
      *
      * @param mixed $var
      * @return \Oxl\Delivery\Model\OxlDelivery
      **/
-    public function prepareModel( $var );
+    public function prepareModel($var);
 
     /**
-     * undocumented function summary
+     * Undocumented function summary
      *
      * Undocumented function long description
      *
      * @param mixed $var
      * @return \Oxl\Delivery\Model\OxlDelivery
      **/
-    public function setModel( $var );
+    public function setModel($var);
 }
