@@ -26,6 +26,11 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     protected $_messageManager;
 
     /**
+     * @var \Magento\Framework\HTTP\ClientInterface
+     */
+    protected $_client;
+
+    /**
      * Get the module config data
      *
      * @param \Magento\Framework\App\Helper\Context $context
