@@ -12,8 +12,7 @@ define([
     'Magento_Checkout/js/model/error-processor',
     'Magento_Checkout/js/model/shipping-service',
     'Magento_Checkout/js/model/resource-url-manager',
-    'Magento_Checkout/js/model/shipping-rate-registry',
-    'Magento_Checkout/js/action/set-shipping-information'
+    'Magento_Checkout/js/model/shipping-rate-registry'
     ], function (
         $,
         _,
@@ -28,8 +27,7 @@ define([
         errorProcessor,
         shippingService,
         resourceUrlManager,
-        rateRegistry,
-        setShippingInformationAction,
+        rateRegistry
     ) {
         'use strict'
         var baseUrl;
@@ -43,10 +41,6 @@ define([
 
                 quote.shippingMethod.subscribe( function (val) {                    
                     econtModalHelper.toggleCalculateshippingButton(val);
-                    // if( ! stepNavigator.isProcessed( 'shipping' ) && val['carrier_code'] === "econtdelivery" && shipping_price_cod === null ) {
-                    //     stepNavigator.navigateTo('shipping', 'opc-shipping_method');
-                    //     sidebarModel.hide();
-                    // }
                 })
                 quote.paymentMethod.subscribe( function (method) {                    
                     econtModalHelper.blah(method);
@@ -79,10 +73,6 @@ define([
                     'title': $.mage.__('Доставка с Еконт'),
                     'responsive': true,
                     'showLoader': true,
-                    // 'buttons': [{
-                    //     text: jQuery.mage.__('Submit'),
-                    //     class: 'action'
-                    // }],
                     opened: this.prepareIframe(baseUrl, cdata)
                 }
                 
@@ -149,7 +139,7 @@ define([
                 ).done(function (result) {
    
                 }).fail(function (response) {
-                    console.log( "It's Fucked - " + response );
+                    console.log( "Session store error: " + response );
                 })
             },    
             updateShippingAddress: function ( data ) {
@@ -241,25 +231,6 @@ define([
                     errorProcessor.process(response);
                 }).always(function () {
                     shippingService.isLoading(false);
-                    
-                    // if ( ! stepNavigator.isProcessed( 'shipping' ) ) {
-                    //     console.log('hims');
-                        
-                    //     // stepNavigator.next();
-                    //     // setShippingInformationAction().done(
-                    //     //     function () {                                      
-                    //     //     }
-                    //     // );
-                    // } else {        
-                                    
-                    //     var chkd = $( 'input[type="radio"][name="payment[method]"]:checked' )                                        
-                    //     console.log('hams');
-                    //     if ( chkd.length && chkd[0].value === 'cashondelivery' ) {
-                    //         
-                    //     }
-    
-                    //     $('input[type="radio"][name="payment[method]"]').on('change', _that.blah )
-                    // }
                 });
             },
             blah: function (data) {    
@@ -327,13 +298,6 @@ define([
                         if ( segment.title.indexOf( '(Deliver With Econt - Econt Shipping)' )  === -1 ) {
                             segment.title += ' (Deliver With Econt - Econt Shipping)'
                         }
-                    // } else if ( segment.code === 'subtotal' ) {
-                    //     if ( add_cod ) 
-                    //         segment.value += data;
-                    //     else if ( sub_cod )
-                    //         segment.value -= data;
-                    //     else
-                    //         segment.value = t.subtotal + data;
                     } else if ( segment.code === 'grand_total' ) {
                         if ( add_cod ) 
                             segment.value += data;
