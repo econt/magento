@@ -4,7 +4,15 @@ namespace Oxl\Delivery\Block\Adminhtml\Shipping;
 
 use Magento\Shipping\Block\Adminhtml\Create\Form;
 
-class OxlTracking extends Form {   
+class OxlTracking extends Form
+{
+
+    /**
+     * Cache waybill popup URL
+     *
+     * @var string|null
+     */
+    private $waybillPopupUrl = null;
 
     /**
      * Retrieve invoice order
@@ -36,29 +44,67 @@ class OxlTracking extends Form {
         return $this->_coreRegistry->registry('current_shipment');
     }
 
-    public function getText() 
-    {         
-        return "Override Text " . $this->getOrder()->getId(); 
+    /**
+     * Prepare layout.
+     */
+    public function getText()
+    {
+        return "Override Text " . $this->getOrder()->getId();
     }
 
-    public function getOrderId() 
-    {         
-        return $this->getOrder()->getId(); 
+    /**
+     * Prepare layout.
+     */
+    public function getOrderId()
+    {
+        return $this->getOrder()->getId();
     }
 
+    /**
+     * Get order currency code
+     *
+     * @return string
+     */
     public function getCurrency()
     {
         return $this->getOrder()->getOrderCurrencyCode();
     }
 
+    /**
+     * Check if order has tracking numbers
+     *
+     * @return bool
+     */
     public function hasTracking()
     {
         return boolval($this->getOrder()->getTrackingNumbers());
     }
-
-    public function getTracking()
+    /**
+     * Get waybill popup URL
+     *
+     * @return string|null
+     */
+    public function getWaybillPopupUrl()
     {
-
+        if ($this->waybillPopupUrl !== null) {
+            return $this->waybillPopupUrl;
+        }
+        $helper = \Magento\Framework\App\ObjectManager::getInstance()->get(\Oxl\Delivery\Helper\Data::class);
+        $this->waybillPopupUrl = $helper->getWaybillPopupUrl($this->getOrder()->getId());
+        return $this->waybillPopupUrl;
     }
-
+    /**
+     * Prepare HTML output
+     *
+     * @return string
+     */
+    protected function _toHtml()
+    {
+        // Get \Oxl\Delivery\Helper\Data::class instance
+        $waybillPopupUrl = $this->getWaybillPopupUrl();
+        if ($waybillPopupUrl === null) {
+            return ''; // No waybill available
+        }
+        return parent::_toHtml();
+    }
 }

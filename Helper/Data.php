@@ -165,7 +165,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         $data = $this->checkEcontConfiguration($conf, $order_number);
         if (!array_key_exists('pdfURL', $data)) {
             $this->_logger->warning(__('Econt: Waybill generation failed. No PDF URL returned.'));
-            return '#';
+            return null;
         }
         return $data['pdfURL'];
     }
