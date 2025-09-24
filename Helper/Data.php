@@ -113,28 +113,33 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      **/
     public function checkEcontConfiguration($new_settings = [], $order_number = '4812384')
     {
-        $endpoint = $this->getServiceUrl(array_key_exists('demo_service', $new_settings));
-        $secret = $new_settings['private_key'];
+        try {
+            $endpoint = $this->getServiceUrl(array_key_exists('demo_service', $new_settings));
+            $secret = $new_settings['private_key'];
 
-        $url = $endpoint . "services/OrdersService.getTrace.json";
-        $headers = [
-            'Content-Type' => 'application/json',
-            'Authorization' => $secret
-        ];
-        $payload = json_encode([
-            'orderNumber' => $order_number
-        ]);
-        $this->client->setHeaders($headers);
-        $this->client->setOptions([
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_TIMEOUT => 6
-        ]);
-        $this->client->post($url, $payload);
-        $res = $this->client->getBody();
-        $response = json_decode($res, true);
+            $url = $endpoint . "services/OrdersService.getTrace.json";
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Authorization' => $secret
+            ];
+            $payload = json_encode([
+                'orderNumber' => $order_number
+            ]);
+            $this->client->setHeaders($headers);
+            $this->client->setOptions([
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_TIMEOUT => 6
+            ]);
+            $this->client->post($url, $payload);
+            $res = $this->client->getBody();
+            $response = json_decode($res, true);
 
-        return $response;
+            return $response;
+        } catch (\Exception $ex) {
+            $this->_logger->error($ex->getMessage());
+            return ['error' => $ex->getMessage()];
+        }
     }
 
     /**

@@ -79,6 +79,7 @@ class OxlTracking extends Form
     {
         return boolval($this->getOrder()->getTrackingNumbers());
     }
+
     /**
      * Get waybill popup URL
      *
@@ -93,6 +94,7 @@ class OxlTracking extends Form
         $this->waybillPopupUrl = $helper->getWaybillPopupUrl($this->getOrder()->getId());
         return $this->waybillPopupUrl;
     }
+
     /**
      * Prepare HTML output
      *
@@ -100,8 +102,14 @@ class OxlTracking extends Form
      */
     protected function _toHtml()
     {
+        // Do not display if shipping method is not Econt Delivery
+        if ($this->getOrder()->getShippingMethod() != 'econtdelivery_econtdelivery') {
+            return '';
+        }
+
         // Get \Oxl\Delivery\Helper\Data::class instance
         $waybillPopupUrl = $this->getWaybillPopupUrl();
+        
         if ($waybillPopupUrl === null) {
             return ''; // No waybill available
         }
