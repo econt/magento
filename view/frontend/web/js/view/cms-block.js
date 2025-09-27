@@ -86,20 +86,22 @@ define([
                 var orderParams = {};
                 var items = quote.getItems();                
 
-                orderParams.order_total = checkoutConfig.totalsData.subtotal_with_discount
-                orderParams.order_currency = checkoutConfig.totalsData.quote_currency_code
-                orderParams.customer_name = cdata.shippingAddressFromData.firstname + ' ' + cdata.shippingAddressFromData.lastname
-                orderParams.customer_company = cdata.shippingAddressFromData.company
-                orderParams.customer_address = ''   
-                orderParams.order_weight = 0            
-                orderParams.customer_city_name = cdata.shippingAddressFromData.city
-                orderParams.customer_post_code = cdata.shippingAddressFromData.postcode
-                orderParams.customer_phone = cdata.shippingAddressFromData.telephone
-                orderParams.ignore_history = 1
-                orderParams.customer_email = cdata.validatedEmailValue
+                console.log(cdata);
+
+                orderParams.order_total = checkoutConfig.totalsData.subtotal_with_discount;
+                orderParams.order_currency = checkoutConfig.totalsData.quote_currency_code;
+                orderParams.customer_name = cdata.shippingAddressFromData.default.firstname + ' ' + cdata.shippingAddressFromData.default.lastname;
+                orderParams.customer_company = cdata.shippingAddressFromData.default.company;
+                orderParams.customer_address = '';
+                orderParams.order_weight = 0;
+                orderParams.customer_city_name = cdata.shippingAddressFromData.default.city;
+                orderParams.customer_post_code = cdata.shippingAddressFromData.default.postcode;
+                orderParams.customer_phone = cdata.shippingAddressFromData.default.telephone;
+                orderParams.ignore_history = 1;
+                orderParams.customer_email = cdata.validatedEmailValue;
 
                 _.forEach( items, function(item) {
-                    orderParams.order_weight += item.weight
+                    orderParams.order_weight += item.weight;
                 } )
     
                 _.forEach( cdata.shippingAddressFromData.street, function(str, index) {
