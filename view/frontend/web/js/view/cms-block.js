@@ -86,8 +86,6 @@ define([
                 var orderParams = {};
                 var items = quote.getItems();                
 
-                console.log(cdata);
-
                 orderParams.order_total = checkoutConfig.totalsData.subtotal_with_discount;
                 orderParams.order_currency = checkoutConfig.totalsData.quote_currency_code;
                 orderParams.customer_name = cdata.shippingAddressFromData.default.firstname + ' ' + cdata.shippingAddressFromData.default.lastname;
@@ -100,18 +98,14 @@ define([
                 orderParams.ignore_history = 1;
                 orderParams.customer_email = cdata.validatedEmailValue;
 
-                _.forEach( items, function(item) {
-                    orderParams.order_weight += item.weight;
-                } )
-    
-                _.forEach( cdata.shippingAddressFromData.street, function(str, index) {
-                    if ( index > 0 && str.length > 0 && index <= (_.size(cdata.shippingAddressFromData.street) - 1) ) {
+                _.forEach( cdata.shippingAddressFromData.default.street, function(str, index) {
+                    if ( index > 0 && str.length > 0 && index <= (_.size(cdata.shippingAddressFromData.default.street) - 1) ) {
                         orderParams.customer_address += ', ';
                     }
                     orderParams.customer_address += str;
                 })
     
-                _.forEach( items, (item, index) => {
+                _.forEach( items, (item) => {
                     orderParams.order_weight += Number(item.weight)                    
                 } )
                 
