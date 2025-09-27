@@ -168,6 +168,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $conf = ['private_key' => $this->getPrivateKey()];
         $data = $this->checkEcontConfiguration($conf, $order_number);
+
         if (!array_key_exists('pdfURL', $data)) {
             $this->_logger->warning(__('Econt: Waybill generation failed. No PDF URL returned.'));
             return null;

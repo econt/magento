@@ -29,7 +29,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @var \Magento\Framework\HTTP\ClientInterface
      */
-    protected $_client;
+    protected $client;
 
     /**
      * Get the module config data
@@ -50,7 +50,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         $this->_checkoutSession = $checkoutSession;
         $this->_oxlDeliveryFactory = $oxldelivery->create();
         $this->_messageManager = $messageManager;
-        $this->_client = $client;
+        $this->client = $client;
         parent::__construct($context);
     }
     /**
@@ -141,18 +141,19 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
             $url = $this->_oxlDeliveryFactory->getEcontCustomerInfoUrl() . 'services/OrdersService.updateOrder.json';
             $headers = [
-                'Content-Type: application/json',
-                'Authorization: ' . $this->_oxlDeliveryFactory->getPrivateKey()
+                'Content-Type' => 'application/json',
+                'Authorization' => $this->_oxlDeliveryFactory->getPrivateKey()
             ];
-            $this->_client->setHeaders($headers);
-            $this->_client->setOptions([
+            $payload = json_encode($data);
+            $this->client->setHeaders($headers);
+            $this->client->setOptions([
                 CURLOPT_SSL_VERIFYPEER => false,
                 CURLOPT_SSL_VERIFYHOST => false,
                 CURLOPT_TIMEOUT => 6
             ]);
-            $this->_client->post($url, json_encode($data));
+            $this->client->post($url, $payload);
 
-            $res = $this->_client->getBody();
+            $res = $this->client->getBody();
             $response = json_decode($res, true);
 
             // Invalid username and password connection with Econt service
