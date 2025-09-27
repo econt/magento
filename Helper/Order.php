@@ -6,6 +6,7 @@ use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Helper\Context;
 use Magento\Framework\HTTP\ClientInterface;
 use Magento\Framework\Message\ManagerInterface;
+use Magento\OfflinePayments\Model\Cashondelivery;
 use Oxl\Delivery\Model\OxlDeliveryFactory;
 
 class Order extends \Magento\Framework\App\Helper\AbstractHelper
@@ -82,7 +83,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
             'orderNumber' => $order->getId(),
             'status' => $order->getStatus(),
             'orderTime' => '',
-            'cod' => $order->getPayment()->getMethod() === 'cashondelivery' ? true : '',
+            'cod' => $order->getPayment()->getMethod() === Cashondelivery::PAYMENT_METHOD_CODE ? true : '',
             'partialDelivery' => '',
             'currency' => $order->getOrderCurrencyCode(),
             'shipmentDescription' => '',
