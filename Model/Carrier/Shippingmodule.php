@@ -5,6 +5,7 @@ namespace Oxl\Delivery\Model\Carrier;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Carrier\CarrierInterface;
+use Magento\OfflinePayments\Model\Cashondelivery;
 
 /**
  * Custom shipping model
@@ -71,7 +72,7 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
         $payment_method = $this->_checkoutSession->getQuote()->getPayment()->getMethod();
         if ( $this->_checkoutSession->getEcontShippingPriceCod() ) {
             $price = $this->_checkoutSession->getEcontShippingPriceCod();
-        } else if ( $payment_method != null && $payment_method === 'cashondelivery' ) {
+        } else if ( $payment_method != null && $payment_method === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE ) {
             $price = $this->_checkoutSession->getEcontShippingPriceCod();
         } else if ( $payment_method != null ) {
             $price = $this->_checkoutSession->getEcontShippingPrice();
