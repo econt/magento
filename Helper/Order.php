@@ -65,102 +65,106 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
      */
     public function syncOrder($order = null, $get_new_price = false)
     {
-        if ($order === null) {
-            return false;
-        }
-        
-        if (is_int($order)) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $order = $objectManager->create(\Magento\Sales\Api\Data\OrderInterface::class)->load((int)($order));
-        }
-        
-        if ($order->getShippingMethod() != 'econtdelivery_econtdelivery') {
-            return false;
-        }
-
-        $data = [
-            'id' => '',
-            'orderNumber' => $order->getId(),
-            'status' => $order->getStatus(),
-            'orderTime' => '',
-            'cod' => $order->getPayment()->getMethod() === Cashondelivery::PAYMENT_METHOD_CODE ? true : '',
-            'partialDelivery' => '',
-            'currency' => $order->getOrderCurrencyCode(),
-            'shipmentDescription' => '',
-            'shipmentNumber' => '',
-            'customerInfo' => [
-                'id' => $this->_checkoutSession->getEcontId(),
-                'name' => '',
-                'face' => '',
-                'phone' => '',
-                'email' => '',
-                'countryCode' => '',
-                'cityName' => '',
-                'postCode' => '',
-                'officeCode' => '',
-                'zipCode' => '',
-                'address' => '',
-                'priorityFrom' => '',
-                'priorityTo' => ''
-            ],
-            'items' => [
-                
-            ],
-            "packCount" => null,
-            "receiverShareAmount" => null
-        ];
-
-        $iteration = count($order->getAllVisibleItems());
-        
-        foreach ($order->getAllVisibleItems() as $item) {
-            $price  = $item->getPrice();
-            // $count  = $item->get_quantity();
-            $weight = floatval($item->getWeight());
-            $quantity = (int)($item->getQtyOrdered());
-
-            array_push($data['items'], [
-                'name' => $item->getName(),
-                'SKU' => $item->getSku(),
-                'URL' => '',
-                'count' => $quantity,
-                'hideCount' => '',
-                'totalPrice' => $price * $quantity,
-                'totalWeight' => $weight * $quantity
-            ]);
+        try {
+            if ($order === null) {
+                return false;
+            }
             
-            $data['shipmentDescription'] .= $item->getName() . ($iteration === 1 ? '' : ', ');
-            --$iteration;
-        }
-        
-        mb_strimwidth($data['shipmentDescription'], 0, 160, "...");
-        
-        if ($order->getTotalItemCount() > 1 && $data['cod']) {
-            $data['partialDelivery'] = true;
-        }
+            if (is_int($order)) {
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $order = $objectManager->create(\Magento\Sales\Api\Data\OrderInterface::class)->load((int)($order));
+            }
+            
+            if ($order->getShippingMethod() != 'econtdelivery_econtdelivery') {
+                return false;
+            }
 
-        $url = $this->_oxlDeliveryFactory->getEcontCustomerInfoUrl() . 'services/OrdersService.updateOrder.json';
-        $headers = [
-            'Content-Type: application/json',
-            'Authorization: ' . $this->_oxlDeliveryFactory->getPrivateKey()
-        ];
-        $this->client->setHeaders($headers);
-        $this->client->setOptions([
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => false,
-            CURLOPT_TIMEOUT => 6
-        ]);
-        $this->client->post($url, json_encode($data));
+            $data = [
+                'id' => '',
+                'orderNumber' => $order->getId(),
+                'status' => $order->getStatus(),
+                'orderTime' => '',
+                'cod' => $order->getPayment()->getMethod() === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE ? true : '',
+                'partialDelivery' => '',
+                'currency' => $order->getOrderCurrencyCode(),
+                'shipmentDescription' => '',
+                'shipmentNumber' => '',
+                'customerInfo' => [
+                    'id' => $this->_checkoutSession->getEcontId(),
+                    'name' => '',
+                    'face' => '',
+                    'phone' => '',
+                    'email' => '',
+                    'countryCode' => '',
+                    'cityName' => '',
+                    'postCode' => '',
+                    'officeCode' => '',
+                    'zipCode' => '',
+                    'address' => '',
+                    'priorityFrom' => '',
+                    'priorityTo' => ''
+                ],
+                'items' => [
+                    
+                ],
+                "packCount" => null,
+                "receiverShareAmount" => null
+            ];
 
-        $res = $this->client->getBody();
-        $response = json_decode($res, true);
+            $iteration = count($order->getAllVisibleItems());
+            
+            foreach ($order->getAllVisibleItems() as $item) {
+                $price  = $item->getPrice();
+                // $count  = $item->get_quantity();
+                $weight = floatval($item->getWeight());
+                $quantity = (int)($item->getQtyOrdered());
 
-        $parsed_error = json_decode($response, true);
+                array_push($data['items'], [
+                    'name' => $item->getName(),
+                    'SKU' => $item->getSku(),
+                    'URL' => '',
+                    'count' => $quantity,
+                    'hideCount' => '',
+                    'totalPrice' => $price * $quantity,
+                    'totalWeight' => $weight * $quantity
+                ]);
+                
+                $data['shipmentDescription'] .= $item->getName() . ($iteration === 1 ? '' : ', ');
+                --$iteration;
+            }
+            
+            mb_strimwidth($data['shipmentDescription'], 0, 160, "...");
+            
+            if ($order->getTotalItemCount() > 1 && $data['cod']) {
+                $data['partialDelivery'] = true;
+            }
 
-        if (array_key_exists('type', $parsed_error)) {
-            $this->_messageManager->addErrorMessage($parsed_error['message']);
+            $url = $this->_oxlDeliveryFactory->getEcontCustomerInfoUrl() . 'services/OrdersService.updateOrder.json';
+            $headers = [
+                'Content-Type: application/json',
+                'Authorization: ' . $this->_oxlDeliveryFactory->getPrivateKey()
+            ];
+            $this->_client->setHeaders($headers);
+            $this->_client->setOptions([
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_TIMEOUT => 6
+            ]);
+            $this->_client->post($url, json_encode($data));
+
+            $res = $this->_client->getBody();
+            $response = json_decode($res, true);
+
+            // Invalid username and password connection with Econt service
+            if (array_key_exists('type', $response) && $response['type'] === 'ExAccessDenied') {
+                $this->_logger->error('Econt: Invalid private key. ' . $response['message'] );
+            }
+
+            $this->_checkoutSession->unsEcontShippingPriceCod();
+        } catch (\Exception $ex) {
+            $this->_logger->error($ex->getMessage());
+            $this->_messageManager->addErrorMessage($ex->getMessage());
             return false;
         }
-
-        $this->_checkoutSession->unsEcontShippingPriceCod();
     }
 }
