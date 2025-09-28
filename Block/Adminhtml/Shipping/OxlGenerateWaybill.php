@@ -4,7 +4,7 @@ namespace Oxl\Delivery\Block\Adminhtml\Shipping;
 
 use Magento\Shipping\Block\Adminhtml\Create\Form;
 
-class OxlTracking extends OxlShippingAbstract
+class OxlGenerateWaybill extends Form
 {
 
     /**
@@ -107,12 +107,6 @@ class OxlTracking extends OxlShippingAbstract
             return '';
         }
 
-        // Get \Oxl\Delivery\Helper\Data::class instance
-        $waybillPopupUrl = $this->getWaybillPopupUrl();
-        
-        if ($waybillPopupUrl === null) {
-            //return ''; // No waybill available
-        }
         return parent::_toHtml();
     }
 }

@@ -8,7 +8,11 @@
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <body>
         <referenceContainer name="content">
-            <block class="Oxl\Delivery\Block\Adminhtml\Shipping\OxlTracking" name="econt_delivery_tracking" template="Oxl_Delivery::tracking/form.phtml" before="-" />
+            <block class="Oxl\Delivery\Block\Adminhtml\Shipping\OxlTracking" 
+                name="econt_delivery_tracking" 
+                template="Oxl_Delivery::tracking/form.phtml" 
+                before="-"
+            />
         </referenceContainer>
     </body>
 </page>
