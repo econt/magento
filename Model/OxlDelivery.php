@@ -26,7 +26,7 @@ class OxlDelivery implements OxlDeliveryInterface
     /**
      * @var \Magento\Checkout\Model\Session
      */
-    protected $_checkoutSession;
+    protected $checkoutSession;
 
     /**
      * @var int
@@ -63,7 +63,7 @@ class OxlDelivery implements OxlDeliveryInterface
     {
         $this->helper = $data->create();
 
-        $this->_checkoutSession = $checkoutSession;
+        $this->checkoutSession = $checkoutSession;
     }
     /**
      * Get ID.
@@ -258,6 +258,6 @@ class OxlDelivery implements OxlDeliveryInterface
      **/
     public function getCheckoutSession()
     {
-        return $this->_checkoutSession;
+        return $this->checkoutSession;
     }
 }

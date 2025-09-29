@@ -64,7 +64,7 @@ class OxlShippingAbstract extends Form
      *
      * @return string
      */
-    protected function _toHtml()
+    protected function _toHtml()// phpcs:ignore
     {
         // Do not display if shipping method is not Econt Delivery
         if ($this->getOrder()->getShippingMethod() != 'econtdelivery_econtdelivery') {

@@ -16,7 +16,7 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
     /**
      * @var \Oxl\Delivery\Model\OxlDeliveryFactory
      */
-    protected $_testApiFactory;
+    protected $testApiFactory;
 
     /**
      * @var \Oxl\Delivery\Helper\Data
@@ -40,7 +40,7 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
         DataFactory $data,
         Order $order
     ) {
-        $this->_testApiFactory = $testApiFactory;
+        $this->testApiFactory = $testApiFactory;
         $this->helper = $data;
         $this->order = $order;
     }
@@ -79,7 +79,7 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
      */
     public function getIframeData()
     {
-        $model = $this->_testApiFactory
+        $model = $this->testApiFactory
                 ->create();
         
         $model->prepareModel(['shop_id', 'customer_info_url']);
@@ -100,7 +100,7 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
      */
     public function setPaymentData($econt_id = null, $shipping_price = null, $shipping_price_cod = null)
     {
-        $model = $this->_testApiFactory->create();
+        $model = $this->testApiFactory->create();
         if (! $econt_id || ! $shipping_price || ! $shipping_price_cod) {
             return self::SEVERE_ERROR;
         }

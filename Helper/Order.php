@@ -14,22 +14,27 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
     /**
      * @var \Magento\Checkout\Model\Session
      */
-    protected $_checkoutSession;
+    protected $checkoutSession;
 
     /**
      * @var \Oxl\Delivery\Model\OxlDelivery
      */
-    protected $_oxlDeliveryFactory;
+    protected $oxlDeliveryFactory;
 
     /**
      * @var \Magento\Framework\Message\ManagerInterface
      */
-    protected $_messageManager;
+    protected $messageManager;
 
     /**
      * @var \Magento\Framework\HTTP\ClientInterface
      */
     protected $client;
+
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
 
     /**
      * Get the module config data
@@ -47,10 +52,11 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
         ManagerInterface $messageManager,
         ClientInterface $client
     ) {
-        $this->_checkoutSession = $checkoutSession;
-        $this->_oxlDeliveryFactory = $oxldelivery->create();
-        $this->_messageManager = $messageManager;
+        $this->checkoutSession = $checkoutSession;
+        $this->oxlDeliveryFactory = $oxldelivery->create();
+        $this->messageManager = $messageManager;
         $this->client = $client;
+        $this->logger = $context->getLogger();
         parent::__construct($context);
     }
     /**
@@ -92,7 +98,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                 'shipmentDescription' => '',
                 'shipmentNumber' => '',
                 'customerInfo' => [
-                    'id' => $this->_checkoutSession->getEcontId(),
+                    'id' => $this->checkoutSession->getEcontId(),
                     'name' => '',
                     'face' => '',
                     'phone' => '',
@@ -141,10 +147,10 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                 $data['partialDelivery'] = true;
             }
 
-            $url = $this->_oxlDeliveryFactory->getEcontCustomerInfoUrl() . 'services/OrdersService.updateOrder.json';
+            $url = $this->oxlDeliveryFactory->getEcontCustomerInfoUrl() . 'services/OrdersService.updateOrder.json';
             $headers = [
                 'Content-Type' => 'application/json',
-                'Authorization' => $this->_oxlDeliveryFactory->getPrivateKey()
+                'Authorization' => $this->oxlDeliveryFactory->getPrivateKey()
             ];
             $payload = json_encode($data);
             $this->client->setHeaders($headers);
@@ -160,13 +166,13 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
             // Invalid username and password connection with Econt service
             if (array_key_exists('type', $response) && $response['type'] === 'ExAccessDenied') {
-                $this->_logger->error('Econt: Invalid private key. ' . $response['message']);
+                $this->logger->error('Econt: Invalid private key. ' . $response['message']);
             }
 
-            $this->_checkoutSession->unsEcontShippingPriceCod();
+            $this->checkoutSession->unsEcontShippingPriceCod();
         } catch (\Exception $ex) {
-            $this->_logger->error($ex->getMessage());
-            $this->_messageManager->addErrorMessage($ex->getMessage());
+            $this->logger->error($ex->getMessage());
+            $this->messageManager->addErrorMessage($ex->getMessage());
             return false;
         }
     }

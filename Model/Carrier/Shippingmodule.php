@@ -15,12 +15,7 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
     /**
      * @var string
      */
-    protected $_code = 'econtdelivery';
-
-    /**
-     * @var bool
-     */
-    protected $_isFixed = false;
+    protected $_code = 'econtdelivery';// phpcs:ignore
 
     /**
      * @var \Magento\Shipping\Model\Rate\ResultFactory
@@ -35,7 +30,7 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
     /**
      * @var \Magento\Checkout\Model\Session
      */
-    protected $_checkoutSession;
+    protected $checkoutSession;
 
     /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
@@ -59,7 +54,7 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
 
         $this->rateResultFactory = $rateResultFactory;
         $this->rateMethodFactory = $rateMethodFactory;
-        $this->_checkoutSession = $checkoutSession;
+        $this->checkoutSession = $checkoutSession;
     }
 
     /**
@@ -71,13 +66,13 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
     public function collectRates(RateRequest $request)
     {
         $price = 0;
-        $payment_method = $this->_checkoutSession->getQuote()->getPayment()->getMethod();
-        if ($this->_checkoutSession->getEcontShippingPriceCod()) {
-            $price = $this->_checkoutSession->getEcontShippingPriceCod();
+        $payment_method = $this->checkoutSession->getQuote()->getPayment()->getMethod();
+        if ($this->checkoutSession->getEcontShippingPriceCod()) {
+            $price = $this->checkoutSession->getEcontShippingPriceCod();
         } elseif ($payment_method != null && $payment_method === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE) {
-            $price = $this->_checkoutSession->getEcontShippingPriceCod();
+            $price = $this->checkoutSession->getEcontShippingPriceCod();
         } elseif ($payment_method != null) {
-            $price = $this->_checkoutSession->getEcontShippingPrice();
+            $price = $this->checkoutSession->getEcontShippingPrice();
         }
         if (!$this->getConfigFlag('active')) {
             return false;
@@ -107,8 +102,6 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
     }
 
     /**
-     * Get allowed shipping methods
-     *
      * @return array
      */
     public function getAllowedMethods()

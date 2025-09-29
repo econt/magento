@@ -24,91 +24,92 @@ define([
   'mage/translate',
   'Magento_Checkout/js/model/shipping-rate-service'
 ], function (
-  $,
-  _,
-  Component,
-  ko,
-  customer,
-  addressList,
-  addressConverter,
-  quote,
-  createShippingAddress,
-  selectShippingAddress,
-  shippingRatesValidator,
-  formPopUpState,
-  shippingService,
-  selectShippingMethodAction,
-  rateRegistry,
-  setShippingInformationAction,
-  stepNavigator,
-  modal,
-  alert,
-  checkoutDataResolver,
-  checkoutData,
-  registry,
-  $t
+    $,
+    _,
+    Component,
+    ko,
+    customer,
+    addressList,
+    addressConverter,
+    quote,
+    createShippingAddress,
+    selectShippingAddress,
+    shippingRatesValidator,
+    formPopUpState,
+    shippingService,
+    selectShippingMethodAction,
+    rateRegistry,
+    setShippingInformationAction,
+    stepNavigator,
+    modal,
+    alert,
+    checkoutDataResolver,
+    checkoutData,
+    registry,
+    $t
 ) {
   
-  'use strict';
-  var mixin = {
+    'use strict';
+    var mixin = {
 
-    /**
-     * Set shipping information handler
-     */
-    setShippingInformation: function () {
-      if (this.validateShippingInformation()) {
-        quote.billingAddress(null);
-        checkoutDataResolver.resolveBillingAddress();
-        setShippingInformationAction().done(
-          function () {                    
-            if ( quote.shippingMethod().carrier_code != "econtdelivery" ) {
-              stepNavigator.next();
-            } else {
-              // console.log(quote.getTotals()());
-              if (mixin.checkShippingPrice(quote.getTotals() ())) {
-                stepNavigator.next();
-              } else {
-                alert({
-                  title: $.mage.__('Доставка с Еконт'),
-                  content: 'Трябва да калкулирате цена на доставка! Моля използвайте бутона "Калкулирай цена"',
-                  // actions: {
-                  //     always: function(){
-                  //         if ( proceed && data ) {
-                  //             _that.updateShippingPrice( data );
-                  //             $( '#place_iframe_here' ).empty();
-                  //             _that.storeSessionPriceData( data );                
-                  //         }
-                  //         else {
-                  //             if (modal)
-                  //                 modal.modal('toggleModal');
-                  //         }
-                  //     }
-                  // }
-                });
-              }
-            }  
-          }
-        );
-      }
-    },
-    checkShippingPrice: function(obj) {
-      if (obj.base_shipping_incl_tax === 0) {
-        return false;
-      }
+      /**
+       * Set shipping information handler
+       */
+        setShippingInformation: function () {
+            if (this.validateShippingInformation()) {
+                quote.billingAddress(null);
+                checkoutDataResolver.resolveBillingAddress();
+                setShippingInformationAction().done(
+                    function () {
+                        if ( quote.shippingMethod().carrier_code != "econtdelivery" ) {
+                            stepNavigator.next();
+                        } else {
+                          // console.log(quote.getTotals()());
+                            if (mixin.checkShippingPrice(quote.getTotals()())) {
+                                stepNavigator.next();
+                            } else {
+                                alert({
+                                    title: $.mage.__('Доставка с Еконт'),
+                                    content: 'Трябва да калкулирате цена на доставка! Моля използвайте бутона "Калкулирай цена"',
+                                  // actions: {
+                                  //     always: function(){
+                                  //         if ( proceed && data ) {
+                                  //             _that.updateShippingPrice( data );
+                                  //             $( '#place_iframe_here' ).empty();
+                                  //             _that.storeSessionPriceData( data );
+                                  //         }
+                                  //         else {
+                                  //             if (modal)
+                                  //                 modal.modal('toggleModal');
+                                  //         }
+                                  //     }
+                                  // }
+                                });
+                            }
+                        }
+                    }
+                );
+            }
+        },
+        checkShippingPrice: function (obj) {
+            if (obj.base_shipping_incl_tax === 0) {
+                return false;
+            }
 
-      if (obj.base_shipping_amount === 0) {
-        return false;
-      }
+            if (obj.base_shipping_amount === 0) {
+                return false;
+            }
       
-      return true;
-    },
-    myClickEvent: function ( data, event ) {
-      console.log(event, data);
-      return
-    }
-  };
+            return true;
+        },
+        myClickEvent: function ( data, event ) {
+            console.log(event, data);
+            return
+        }
+    };
   
-  return function (target) { // target == Result that Magento_Ui/.../default returns.
-    return target.extend(mixin); // new result that all other modules receive 
-  }
+    return function (target) {
+ // target == Result that Magento_Ui/.../default returns.
+        return target.extend(mixin); // new result that all other modules receive
+    }
 });

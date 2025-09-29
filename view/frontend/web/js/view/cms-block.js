@@ -35,20 +35,20 @@ define([
         econtModalHelper = {
             shipping_data: {},
             shipping_price_cod: null,
-            main: function (config, element) {                                
+            main: function (config, element) {
                 var url = config.AjaxUrl;
-                baseUrl = url;                
+                baseUrl = url;
 
-                quote.shippingMethod.subscribe( function (val) {                    
+                quote.shippingMethod.subscribe(function (val) {
                     econtModalHelper.toggleCalculateshippingButton(val);
                 })
-                quote.paymentMethod.subscribe( function (method) {                    
+                quote.paymentMethod.subscribe(function (method) {
                     econtModalHelper.blah(method);
                 })
                            
             },
-            toggleCalculateshippingButton: function (object) {                
-                setTimeout(function() {
+            toggleCalculateshippingButton: function (object) {
+                setTimeout(function () {
                     if (object.carrier_code != 'econtdelivery') {
                         $('#block-custom').hide()
                     } else if (object.carrier_code === 'econtdelivery') {
@@ -56,14 +56,16 @@ define([
                     }
                 }, 800)
             },
-            loadModal : function() {
-                if (quote.shippingMethod().carrier_code != 'econtdelivery') return;
+            loadModal : function () {
+                if (quote.shippingMethod().carrier_code != 'econtdelivery') {
+                    return;
+                }
                 var data;
                 var footer;
                 let cdata
-                cdata = customerData.get('checkout-data') ();                
+                cdata = customerData.get('checkout-data')();
                 
-                if ( !this.checkCustomerData(cdata) ) {                        
+                if ( !this.checkCustomerData(cdata) ) {
                     this.showAlert($.mage.__('Моля попълнете всички задължителни полета!'));
                     return
                 }
@@ -78,13 +80,13 @@ define([
                 
                 $('#econt-iframe-modal').modal(data);
                 $('#econt-iframe-modal').modal('openModal');
-                footer = $('.modal-footer')        
-                footer.css('display', 'none');   
+                footer = $('.modal-footer')
+                footer.css('display', 'none');
             },
-            prepareIframe: function ( url, cdata ) {            
+            prepareIframe: function ( url, cdata ) {
                 var iframe;
                 var orderParams = {};
-                var items = quote.getItems();                
+                var items = quote.getItems();
 
                 orderParams.order_total = checkoutConfig.totalsData.subtotal_with_discount;
                 orderParams.order_currency = checkoutConfig.totalsData.quote_currency_code;
@@ -98,16 +100,16 @@ define([
                 orderParams.ignore_history = 1;
                 orderParams.customer_email = cdata.validatedEmailValue;
 
-                _.forEach( cdata.shippingAddressFromData.default.street, function(str, index) {
+                _.forEach(cdata.shippingAddressFromData.default.street, function (str, index) {
                     if ( index > 0 && str.length > 0 && index <= (_.size(cdata.shippingAddressFromData.default.street) - 1) ) {
                         orderParams.customer_address += ', ';
                     }
                     orderParams.customer_address += str;
                 })
     
-                _.forEach( items, (item) => {
-                    orderParams.order_weight += Number(item.weight)                    
-                } )
+                _.forEach(items, (item) => {
+                    orderParams.order_weight += Number(item.weight)
+                })
                 
                 $.ajax({
                     // showLoader: true,
@@ -116,13 +118,13 @@ define([
                     type: "GET",
                     dataType: 'json'
                 }).done(function (data) {
-                    $( '#place_iframe_here' ).empty(); 
-                    orderParams.id_shop = data.econt_shop_id                     
-                    iframe = '<iframe src="' + data.econt_customer_info_url + jQuery.param(orderParams) + '" scrolling="yes" id="delivery_with_econt_iframe"></iframe>'                    
+                    $('#place_iframe_here').empty();
+                    orderParams.id_shop = data.econt_shop_id
+                    iframe = '<iframe src="' + data.econt_customer_info_url + jQuery.param(orderParams) + '" scrolling="yes" id="delivery_with_econt_iframe"></iframe>'
                     // append the generated iframe in the div
-                    $( '#place_iframe_here' ).append(iframe);   
-                });           
-            },            
+                    $('#place_iframe_here').append(iframe);
+                });
+            },
             storeSessionPriceData: function ( data ) {
                 storage.post(
                     baseUrl + 'rest/V1/econt/delivery/set-payment-data',
@@ -135,9 +137,9 @@ define([
                 ).done(function (result) {
    
                 }).fail(function (response) {
-                    console.log( "Session store error: " + response );
+                    console.log("Session store error: " + response);
                 })
-            },    
+            },
             updateShippingAddress: function ( data ) {
                 var full_name = [];
                 var company = '';
@@ -146,56 +148,63 @@ define([
                 updateBilling = quote.billingAddress() === null ? false : true;
 
                 if ( data['face'] != null ) {
-                    full_name = data['face'].split( ' ' );
+                    full_name = data['face'].split(' ');
                     company = data['name'];
                 } else {
-                    full_name = data['name'].split( ' ' );
+                    full_name = data['name'].split(' ');
                 }
     
                 if ( quote.shippingAddress().firstname != full_name[0] ) {
                     quote.shippingAddress().firstname = full_name[0];
-                    if (updateBilling)
+                    if (updateBilling) {
                         quote.billingAddress().firstname = full_name[0];
+                    }
                 }
     
                 if ( quote.shippingAddress().lastname != full_name[1] ) {
-                    quote.shippingAddress().lastname = full_name[1];  
-                    if (updateBilling)
-                        quote.billingAddress().lastname = full_name[1];    
+                    quote.shippingAddress().lastname = full_name[1];
+                    if (updateBilling) {
+                        quote.billingAddress().lastname = full_name[1];
+                    }
                 }
     
                 if ( quote.shippingAddress().company != company ) {
-                    quote.shippingAddress().company = company;    
-                    if (updateBilling)
-                        quote.billingAddress().company = company;    
+                    quote.shippingAddress().company = company;
+                    if (updateBilling) {
+                        quote.billingAddress().company = company;
+                    }
                 }
     
                 quote.shippingAddress().street[0] = data['address'] != '' ? data['address'] : data['office_name'];
-                if (updateBilling)
+                if (updateBilling) {
                     quote.billingAddress().street[0] = data['address'] != '' ? data['address'] : data['office_name'];
+                }
     
                 if ( quote.shippingAddress().telephone != data['phone'] ) {
                     quote.shippingAddress().telephone = data['phone'];
-                    if (updateBilling)
+                    if (updateBilling) {
                         quote.billingAddress().telephone = data['phone'];
+                    }
                 }
                 
                 if ( quote.shippingAddress().postcode != data['post_code'] ) {
                     quote.shippingAddress().postcode = data['post_code'];
-                    if (updateBilling)
+                    if (updateBilling) {
                         quote.billingAddress().postcode = data['post_code'];
+                    }
                 }
     
-                if ( quote.shippingAddress().city != data['city_name'] ){
+                if ( quote.shippingAddress().city != data['city_name'] ) {
                     quote.shippingAddress().city = data['city_name'];
-                    if (updateBilling)
+                    if (updateBilling) {
                         quote.billingAddress().city = data['city_name'];
-                }                
+                    }
+                }
     
                 if ( quote.guestEmail != data['email'] ) {
                     quote.guestEmail = data['email'];
                 }
-            },    
+            },
             updateShippingPrice: function ( data ) {
                 var address = quote.shippingAddress();
                 var _that = this;
@@ -208,8 +217,8 @@ define([
                     false
                 ).done(function (result) {
                     var r;
-                    r = _.each(result, function(res) {
-                        if(res.carrier_code === 'econtdelivery') {
+                    r = _.each(result, function (res) {
+                        if (res.carrier_code === 'econtdelivery') {
                             res.amount = data['shipping_price_cod'];
                             res.base_amount = data['shipping_price_cod'];
                             res.price_excl_tax = data['shipping_price_cod'];
@@ -221,7 +230,7 @@ define([
                     
                     rateRegistry.set(address.getKey(), r);
                     shippingService.setShippingRates(r);
-                    _that.updateQuoteShippingTotals( data['shipping_price_cod'] );
+                    _that.updateQuoteShippingTotals(data['shipping_price_cod']);
                 }).fail(function (response) {
                     shippingService.setShippingRates([]);
                     errorProcessor.process(response);
@@ -229,30 +238,34 @@ define([
                     shippingService.isLoading(false);
                 });
             },
-            blah: function (data) {    
-                var totals = quote.getTotals() ();
-                if (Object.keys(this.shipping_data).length === 0) return;
-                if ( quote.shippingMethod() && quote.shippingMethod().carrier_code != "econtdelivery" ) return;
+            blah: function (data) {
+                var totals = quote.getTotals()();
+                if (Object.keys(this.shipping_data).length === 0) {
+                    return;
+                }
+                if ( quote.shippingMethod() && quote.shippingMethod().carrier_code != "econtdelivery" ) {
+                    return;
+                }
 
-                if( this.shipping_price_cod === null ) {
-                    setTimeout(function(){
+                if ( this.shipping_price_cod === null ) {
+                    setTimeout(function () {
                         stepNavigator.navigateTo('shipping', 'opc-shipping_method');
                         sidebarModel.hide();
                     }, 1000)
                 }
 
-                if ( data.method === 'cashondelivery' ) {                    
-                    if ( totals.base_shipping_incl_tax < this.shipping_data.shipping_price_cod )
-                        this.updateQuoteShippingTotals( this.shipping_price_cod, true );
-                }
-                else {                    
-                    if ( totals.base_shipping_incl_tax > this.shipping_data.shipping_price  ){
-                        this.updateQuoteShippingTotals( this.shipping_price_cod, false, true );
+                if ( data.method === 'cashondelivery' ) {
+                    if ( totals.base_shipping_incl_tax < this.shipping_data.shipping_price_cod ) {
+                        this.updateQuoteShippingTotals(this.shipping_price_cod, true);
+                    }
+                } else {
+                    if ( totals.base_shipping_incl_tax > this.shipping_data.shipping_price  ) {
+                        this.updateQuoteShippingTotals(this.shipping_price_cod, false, true);
                     }
                 }
-            },    
-            updateQuoteShippingTotals: function ( data, add_cod = false, sub_cod = false ) {                      
-                var t = quote.getTotals() ();
+            },
+            updateQuoteShippingTotals: function ( data, add_cod = false, sub_cod = false ) {
+                var t = quote.getTotals()();
                 var shipping_fields = [
                     'base_shipping_amount',
                     'base_shipping_incl_tax',
@@ -261,9 +274,9 @@ define([
                 ];
                 var subtotal_fields = [
                     'subtotal_with_discount'
-                ];                
+                ];
     
-                _.each( shipping_fields, function( field ) {
+                _.each(shipping_fields, function ( field ) {
                     if ( add_cod ) {
                         t[field] += data;
                     } else if ( sub_cod ) {
@@ -273,40 +286,43 @@ define([
                     }
                 });
     
-                _.each( subtotal_fields, function( field ) {                
-                    if ( add_cod )
+                _.each(subtotal_fields, function ( field ) {
+                    if ( add_cod ) {
                         t[field] += data;
-                    else if ( sub_cod )
+                    } else if ( sub_cod ) {
                         t[field] -= data;
-                    else 
+                    } else {
                         t[field] = t.subtotal + data;
-                } );
+                    }
+                });
                 
-                _.each( t.total_segments, function( segment ) {
-                    if( segment.code === 'shipping' ) {
-                        if ( add_cod ) 
+                _.each(t.total_segments, function ( segment ) {
+                    if ( segment.code === 'shipping' ) {
+                        if ( add_cod ) {
                             segment.value += data;
-                        else if ( sub_cod )
+                        } else if ( sub_cod ) {
                             segment.value -= data;
-                        else
+                        } else {
                             segment.value = data;
+                        }
     
-                        if ( segment.title.indexOf( '(Deliver With Econt - Econt Shipping)' )  === -1 ) {
+                        if ( segment.title.indexOf('(Deliver With Econt - Econt Shipping)')  === -1 ) {
                             segment.title += ' (Deliver With Econt - Econt Shipping)'
                         }
                     } else if ( segment.code === 'grand_total' ) {
-                        if ( add_cod ) 
+                        if ( add_cod ) {
                             segment.value += data;
-                        else if ( sub_cod )
+                        } else if ( sub_cod ) {
                             segment.value -= data;
-                        else
+                        } else {
                             segment.value = t.grand_total + data;
+                        }
                     }
                     
                     return segment;
-                } );
+                });
 
-                quote.setTotals( t );
+                quote.setTotals(t);
             },
             showAlert: function (content, data = null, proceed = false, modal = null) {
                 var _that = this;
@@ -314,15 +330,15 @@ define([
                     title: $.mage.__('Доставка с Еконт'),
                     content: content,
                     actions: {
-                        always: function(){
+                        always: function () {
                             if ( proceed && data ) {
-                                _that.updateShippingPrice( data );
-                                $( '#place_iframe_here' ).empty();
-                                _that.storeSessionPriceData( data );                
-                            }
-                            else {
-                                if (modal)
+                                _that.updateShippingPrice(data);
+                                $('#place_iframe_here').empty();
+                                _that.storeSessionPriceData(data);
+                            } else {
+                                if (modal) {
                                     modal.modal('toggleModal');
+                                }
                             }
                         }
                     }
@@ -330,14 +346,14 @@ define([
             },
             checkCustomerData: function (data) {
                 var succss = false;
-                _.forEach(data.shippingAddressFromData, function (value, key) {                              
+                _.forEach(data.shippingAddressFromData, function (value, key) {
                     if (key != 'region' && value != "") {
                         succss = true;
                     } else if (key != 'company' && value != "") {
                         succss = true;
                     } else if (key === 'region' || key === 'company') {
                         succss = true;
-                    } else {                        
+                    } else {
                         succss = false;
                     }
                 })
@@ -346,9 +362,11 @@ define([
             }
         }
 
-        if ( quote.shippingMethod() && quote.shippingMethod().carrier_code != "econtdelivery" ) return;                  
+        if ( quote.shippingMethod() && quote.shippingMethod().carrier_code != "econtdelivery" ) {
+            return;
+        }
 
         window.econtModalHelper = econtModalHelper;
 
         return econtModalHelper.main
-});
+    });

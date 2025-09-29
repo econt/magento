@@ -8,7 +8,7 @@ use Magento\Framework\View\LayoutInterface;
 class ConfigProvider implements ConfigProviderInterface
 {
     /** @var LayoutInterface  */
-    protected $_layout;
+    protected $layout;
 
     /** @var array  */
     protected $blocks;
@@ -19,7 +19,7 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function __construct(LayoutInterface $layout, $blockIds)
     {
-        $this->_layout = $layout;
+        $this->layout = $layout;
         $this->blocks = $this->buildBlocks($blockIds);
     }
     
@@ -46,7 +46,7 @@ class ConfigProvider implements ConfigProviderInterface
      */
     public function constructBlock($blockId)
     {
-        $block = $this->_layout->createBlock(Magento\Cms\Block\Block::class)
+        $block = $this->layout->createBlock(\Magento\Cms\Block\Block::class)
                  ->setBlockId($blockId)->toHtml();
         return $block;
     }
