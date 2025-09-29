@@ -32,6 +32,9 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
      */
     private $rateMethodFactory;
 
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
     protected $_checkoutSession;
 
     /**
@@ -40,9 +43,8 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
-     * @param array $data
-     * @param  \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param array $data
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -67,16 +69,16 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
      * @return \Magento\Shipping\Model\Rate\Result|bool
      */
     public function collectRates(RateRequest $request)
-    {        
+    {
         $price = 0;
         $payment_method = $this->_checkoutSession->getQuote()->getPayment()->getMethod();
-        if ( $this->_checkoutSession->getEcontShippingPriceCod() ) {
+        if ($this->_checkoutSession->getEcontShippingPriceCod()) {
             $price = $this->_checkoutSession->getEcontShippingPriceCod();
-        } else if ( $payment_method != null && $payment_method === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE ) {
+        } elseif ($payment_method != null && $payment_method === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE) {
             $price = $this->_checkoutSession->getEcontShippingPriceCod();
-        } else if ( $payment_method != null ) {
+        } elseif ($payment_method != null) {
             $price = $this->_checkoutSession->getEcontShippingPrice();
-        } 
+        }
         if (!$this->getConfigFlag('active')) {
             return false;
         }
@@ -105,6 +107,8 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
     }
 
     /**
+     * Get allowed shipping methods
+     *
      * @return array
      */
     public function getAllowedMethods()

@@ -2,7 +2,6 @@
 
 namespace Oxl\Delivery\Model;
 
-
 use Magento\Checkout\Model\ConfigProviderInterface;
 use Magento\Framework\View\LayoutInterface;
 
@@ -10,28 +9,53 @@ class ConfigProvider implements ConfigProviderInterface
 {
     /** @var LayoutInterface  */
     protected $_layout;
+
+    /** @var array  */
     protected $blocks;
 
+    /**
+     * @param LayoutInterface $layout
+     * @param array $blockIds
+     */
     public function __construct(LayoutInterface $layout, $blockIds)
     {
         $this->_layout = $layout;
         $this->blocks = $this->buildBlocks($blockIds);
     }
-
-    public function buildBlocks($blockIds) {
-        $blocks = array();
+    
+    /**
+     * Build blocks
+     *
+     * @param array $blockIds
+     * @return array
+     */
+    public function buildBlocks($blockIds)
+    {
+        $blocks = [];
         foreach ($blockIds as $blockName => $blockId) {
             $blocks[$blockName] = $this->constructBlock($blockId);
         }
         return $blocks;
     }
 
-    public function constructBlock($blockId){
-        $block = $this->_layout->createBlock('Magento\Cms\Block\Block')
+    /**
+     * Construct block by its ID
+     *
+     * @param string $blockId
+     * @return string
+     */
+    public function constructBlock($blockId)
+    {
+        $block = $this->_layout->createBlock(Magento\Cms\Block\Block::class)
                  ->setBlockId($blockId)->toHtml();
         return $block;
     }
 
+    /**
+     * Retrieve associative array of checkout configuration
+     *
+     * @return array
+     */
     public function getConfig()
     {
         return $this->blocks;

@@ -188,7 +188,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         foreach ($tracksCollection->getItems() as $track) {
             $trackNumbers[] = $track->getTrackNumber();
         }
-        $tracking_number = $trackNumbers[0];
+        $tracking_number = isset($trackNumbers[0]) ? $trackNumbers[0] : '';
         return 'https://www.econt.com/services/track-shipment/' . $tracking_number;
     }
 }

@@ -79,12 +79,14 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
                 return false;
             }
 
+            $isCod = $order->getPayment()->getMethod() === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE;
+
             $data = [
                 'id' => '',
                 'orderNumber' => $order->getId(),
                 'status' => $order->getStatus(),
                 'orderTime' => '',
-                'cod' => $order->getPayment()->getMethod() === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE ? true : '',
+                'cod' =>  $isCod? true : '',
                 'partialDelivery' => '',
                 'currency' => $order->getOrderCurrencyCode(),
                 'shipmentDescription' => '',
@@ -158,7 +160,7 @@ class Order extends \Magento\Framework\App\Helper\AbstractHelper
 
             // Invalid username and password connection with Econt service
             if (array_key_exists('type', $response) && $response['type'] === 'ExAccessDenied') {
-                $this->_logger->error('Econt: Invalid private key. ' . $response['message'] );
+                $this->_logger->error('Econt: Invalid private key. ' . $response['message']);
             }
 
             $this->_checkoutSession->unsEcontShippingPriceCod();

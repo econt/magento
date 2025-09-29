@@ -25,6 +25,26 @@ class OxlShippingAbstract extends Form
     }
 
     /**
+     * Retrieve helper
+     *
+     * @return \Oxl\Delivery\Helper\Data
+     */
+    public function helper()
+    {
+        return \Magento\Framework\App\ObjectManager::getInstance()->get(\Oxl\Delivery\Helper\Data::class);
+    }
+
+    /**
+     * Get order ID
+     *
+     * @return int
+     */
+    public function getOrderId()
+    {
+        return $this->getOrder()->getId();
+    }
+
+    /**
      * Get waybill popup URL
      *
      * @return string|null
@@ -34,7 +54,7 @@ class OxlShippingAbstract extends Form
         if ($this->waybillPopupUrl !== null) {
             return $this->waybillPopupUrl;
         }
-        $helper = \Magento\Framework\App\ObjectManager::getInstance()->get(\Oxl\Delivery\Helper\Data::class);
+        $helper = $this->helper();
         $this->waybillPopupUrl = $helper->getWaybillPopupUrl($this->getOrder()->getId());
         return $this->waybillPopupUrl;
     }

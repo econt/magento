@@ -1,54 +1,49 @@
 <?php
-/**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
- */
-
-// @codingStandardsIgnoreFile
-
+// phpcs:disable Generic.Files.LineLength.TooLong
 ?>
 <?php /** @var $block \Magento\Shipping\Block\Adminhtml\View */ ?>
 <?php $order = $block->getOrder() ?>
-<?php if ($order->getIsVirtual()) : return '';endif; ?>
+<?php if ($order->getIsVirtual()): return '';
+endif; ?>
 
 <?php /* Shipping Method */ ?>
 <div class="admin__page-section-item order-shipping-method">
     <div class="admin__page-section-item-title">
-        <span class="title"><?= /* @escapeNotVerified */ __('Shipping &amp; Handling Information') ?></span>
+        <span class="title"><?= $escaper->escapeHtml(__('Shipping &amp; Handling Information')) ?></span>
     </div>
     <div class="admin__page-section-item-content">
-        <?php  if ($order->getTracksCollection()->count()) : ?>
+        <?php  if ($order->getTracksCollection()->count()): ?>
             <?php if ($order->getShippingMethod() === 'econtdelivery_econtdelivery'): ?>
                 <p>
-                    <a href="#" id="linkId" onclick="popWin('<?= /* @escapeNotVerified */ $this->helper(\Oxl\Delivery\Helper\Data::class)->getTrackingPopupUrl($order) ?>','trackshipment','width=800,height=600,resizable=yes,scrollbars=yes')"
-                    title="<?= /* @escapeNotVerified */ __('Track Order') ?>">
-                        <?= /* @escapeNotVerified */ __('Track Order') ?>
+                    <a href="#" id="linkId" onclick="popWin('<?= $escaper->escapeHtml($block->helper(\Oxl\Delivery\Helper\Data::class)->getTrackingPopupUrl($order)) ?>','trackshipment','width=800,height=600,resizable=yes,scrollbars=yes')"
+                    title="<?= $escaper->escapeHtml(__('Track Order')) ?>">
+                        <?= $escaper->escapeHtml(__('Track Order')) ?>
                     </a>
                 </p>
             <?php else: ?>
                 <p>
-                    <a href="#" id="linkId" onclick="popWin('<?= /* @escapeNotVerified */ $this->helper('Magento\Shipping\Helper\Data')->getTrackingPopupUrlBySalesModel($order) ?>','trackorder','width=800,height=600,resizable=yes,scrollbars=yes')" 
-                        title="<?= /* @escapeNotVerified */ __('Track Order') ?>"><?= /* @escapeNotVerified */ __('Track Order') ?>
+                    <a href="#" id="linkId" onclick="popWin('<?= $escaper->escapeHtml($block->helper(Magento\Shipping\Helper\Data::class)->getTrackingPopupUrlBySalesModel($order)) ?>','trackorder','width=800,height=600,resizable=yes,scrollbars=yes')"
+                       title="<?= $escaper->escapeHtml(__('Track Order')) ?>"><?= $escaper->escapeHtml(__('Track Order')) ?>
                     </a>
                 </p>
             <?php endif; ?>
         <?php endif; ?>
         <?php if ($order->getShippingDescription()): ?>
-            <strong><?= $block->escapeHtml($order->getShippingDescription()) ?></strong>
+            <strong><?= $escaper->escapeHtml($order->getShippingDescription()) ?></strong>
 
-            <?php if ($this->helper('Magento\Tax\Helper\Data')->displayShippingPriceIncludingTax()): ?>
+            <?php if ($block->helper(Magento\Tax\Helper\Data::class)->displayShippingPriceIncludingTax()): ?>
                 <?php $_excl = $block->displayShippingPriceInclTax($order); ?>
             <?php else: ?>
                 <?php $_excl = $block->displayPriceAttribute('shipping_amount', false, ' '); ?>
             <?php endif; ?>
             <?php $_incl = $block->displayShippingPriceInclTax($order); ?>
 
-            <?= /* @escapeNotVerified */ $_excl ?>
-            <?php if ($this->helper('Magento\Tax\Helper\Data')->displayShippingBothPrices() && $_incl != $_excl): ?>
-                (<?= /* @escapeNotVerified */ __('Incl. Tax') ?> <?= /* @escapeNotVerified */ $_incl ?>)
+            <?= $escaper->escapeHtml($_excl) ?>
+            <?php if ($block->helper(Magento\Tax\Helper\Data::class)->displayShippingBothPrices() && $_incl != $_excl): ?>
+                (<?= $escaper->escapeHtml(__('Incl. Tax')) ?> <?= $escaper->escapeHtml($_incl) ?>)
             <?php endif; ?>
         <?php else: ?>
-            <?= /* @escapeNotVerified */ __('No shipping information available') ?>
+            <?= $escaper->escapeHtml(__('No shipping information available')) ?>
         <?php endif; ?>
     </div>
 </div>

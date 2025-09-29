@@ -6,15 +6,11 @@
         <div id="place_iframe_here" class="content"></div>
     </div>
 </div>
-
-<?php
-    $ajaxurl = $block->getAjaxUrl();
-?>
 <script type="text/x-magento-init">
     {
         "*": {
             "Oxl_Delivery/js/view/cms-block": {
-                "AjaxUrl": "<?= $escaper->escapeHtml($ajaxurl); ?>"
+                "AjaxUrl": "<?= $escaper->escapeHtml($block->getAjaxUrl()); ?>"
             }
         }
     }
