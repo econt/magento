@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable Generic.Files.LineLength.TooLong
 ?>
-<?php /** @var $block \Magento\Shipping\Block\Adminhtml\View */ ?>
+<?php /** @var $block \Oxl\Delivery\Block\Adminhtml\Order\AbstractOrder */ ?>
 <?php $order = $block->getOrder() ?>
 <?php if ($order->getIsVirtual()): return '';
 endif; ?>
@@ -22,7 +22,7 @@ endif; ?>
                 </p>
             <?php else: ?>
                 <p>
-                    <a href="#" id="linkId" onclick="popWin('<?= $escaper->escapeHtml($block->helper(Magento\Shipping\Helper\Data::class)->getTrackingPopupUrlBySalesModel($order)) ?>','trackorder','width=800,height=600,resizable=yes,scrollbars=yes')"
+                    <a href="#" id="linkId" onclick="popWin('<?= $escaper->escapeHtml($block->helper(\Oxl\Delivery\Helper\Data::class)->getTrackingPopupUrlBySalesModel($order)) ?>','trackorder','width=800,height=600,resizable=yes,scrollbars=yes')"
                        title="<?= $escaper->escapeHtml(__('Track Order')) ?>"><?= $escaper->escapeHtml(__('Track Order')) ?>
                     </a>
                 </p>
@@ -38,7 +38,7 @@ endif; ?>
             <?php endif; ?>
             <?php $_incl = $block->displayShippingPriceInclTax($order); ?>
 
-            <?= $escaper->escapeHtml($_excl) ?>
+            <?= $_excl // phpcs:disable ?>
             <?php if ($block->helper(Magento\Tax\Helper\Data::class)->displayShippingBothPrices() && $_incl != $_excl): ?>
                 (<?= $escaper->escapeHtml(__('Incl. Tax')) ?> <?= $escaper->escapeHtml($_incl) ?>)
             <?php endif; ?>

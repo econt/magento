@@ -9,10 +9,12 @@ class AbstractOrder extends OrderAbstract
     /**
      * Retrieve helper
      *
+     * @param string $class
+     *
      * @return \Magento\Tax\Helper\Data
      */
-    public function helper()
+    public function helper($class)
     {
-        return \Magento\Framework\App\ObjectManager::getInstance()->get(\Magento\Tax\Helper\Data::class);
+        return \Magento\Framework\App\ObjectManager::getInstance()->get($class);
     }
 }
