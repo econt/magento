@@ -1,11 +1,5 @@
 <?php
-/**
- * Copyright © Magento, Inc. All rights reserved.
- * See COPYING.txt for license details.
- */
-
-// @codingStandardsIgnoreFile
-
+// phpcs:disable Generic.Files.LineLength.TooLong
 ?>
 <?php /** @var $block Oxl\Delivery\Block\Adminhtml\Shipping\OxlTracking */?>
 <script>
@@ -19,21 +13,21 @@ require([
     //<![CDATA[
     var oxlTrackingInfo;
     oxlTrackingInfo = {
-        econtUrl: "<?= $this->helper('Oxl\Delivery\Helper\Data')->get_service_url() ?>",
-        econtPrivateKey: "<?= $this->helper('Oxl\Delivery\Helper\Data')->get_private_key() ?>",
+        econtUrl: "<?= $escaper->escapeHtml($block->helper()->getServiceUrl()) ?>",
+        econtPrivateKey: "<?= $escaper->escapeHtml($block->helper()->getPrivateKey()) ?>",
         template: mageTemplate('#oxl_tracking_template'),
         hasTracking: false,
         waybill_url: '',
         main: function() {
             alert('main');
         },
-        check: function (order_id, waybill_id = 99999999, currency = "<?= $block->getCurrency() ?>", s = null, i = null) {
+        check: function (order_id, waybill_id = 99999999, currency = "<?= $escaper->escapeHtml($block->getCurrency()) ?>", s = null, i = null) {
             dwe("body").trigger('processStart');
             dwe.ajax({
                 url: this.econtUrl + 'services/OrdersService.getTrace.json',
                 data: JSON.stringify({
                     "id": "",
-                    "orderNumber": <?= $block->getOrderId() ?>,
+                    "orderNumber": "<?= $escaper->escapeHtml($block->getOrderId()) ?>",
                     "status": "",
                     "orderTime": "",
                     "cod": "",
@@ -90,7 +84,7 @@ require([
                 tmpl = progressTmpl({
                     data: {
                         url: this.econtUrl,
-                        order_number: <?= $block->getOrderId() ?>,
+                        order_number: "<?= $escaper->escapeHtml($block->getOrderId()) ?>",
                         token: this.econtPrivateKey
                     }
                 });
@@ -131,7 +125,7 @@ require([
      * check if this "message" comes from econt delivery system
      */
     if(message.origin.indexOf("//delivery") < 0 ){
-	    return;
+        return;
     }
       
     if(message.data.event === 'cancel' ) {
@@ -161,7 +155,7 @@ require([
 <div class="admin__page-section-item order-shipping-address">
     <?php /* Shipping Address */ ?>
     <div class="admin__page-section-item-title">
-        <span class="title"><?= /* @escapeNotVerified */ __('Generate Waybill') ?></span>
+        <span class="title"><?= $escaper->escapeHtml(__('Generate Waybill')) ?></span>
     </div>
     <div class="admin__page-section-item-content shipping-description-wrapper">
         <div class="shipping-description-content">
@@ -175,13 +169,12 @@ require([
                 title="Generate Waybill" 
                 onclick="oxlTrackingInfo.loadModal()" 
                 data-ui-id="oxl-tracking-status">
-                <span>Generate</span>
+                <span>Generate with Econt</span>
             </button>
         </div>
         <button id="oxl_check_status" title="Check Tracking Status" type="button" class="action-default scalable" onclick="oxlTrackingInfo.check()" data-ui-id="oxl-check-tracking-status">
             <span>Check status</span>
         </button>
-        <?= $block->hasTracking() ?>
     </div>
 </div>
 

@@ -9,27 +9,44 @@ use \Oxl\Delivery\Helper\Order;
 
 class OxlDeliveryManagement implements OxlDeliveryManagementInterface
 {
-    const SEVERE_ERROR = 0;
-    const SUCCESS = 1;
-    const LOCAL_ERROR = 2;
+    public const SEVERE_ERROR = 0;
+    public const SUCCESS = 1;
+    public const LOCAL_ERROR = 2;
 
-    protected $_testApiFactory;
+    /**
+     * @var \Oxl\Delivery\Model\OxlDeliveryFactory
+     */
+    protected $testApiFactory;
+
+    /**
+     * @var \Oxl\Delivery\Helper\Data
+     */
     protected $helper;
+
+    /**
+     * @var \Oxl\Delivery\Helper\Order
+     */
     protected $order;
     
+    /**
+     * Constructor
+     *
+     * @param OxlDeliveryFactory $testApiFactory
+     * @param DataFactory $data
+     * @param Order $order
+     */
     public function __construct(
         OxlDeliveryFactory $testApiFactory,
         DataFactory $data,
         Order $order
     ) {
-        // var_dump($data);die();
-        $this->_testApiFactory = $testApiFactory;        
-        $this->helper = $data;        
+        $this->testApiFactory = $testApiFactory;
+        $this->helper = $data;
         $this->order = $order;
     }
 
     /**
-     * get test Api data.
+     * Get test Api data.
      *
      * @api
      *
@@ -40,9 +57,7 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
     public function getApiData($id)
     {
         try {
-            $this->order->sync_order(1);
-
-            // return $model;
+            $this->order->syncOrder(1);
         } catch (\Magento\Framework\Exception\LocalizedException $e) {
             $returnArray['error'] = $e->getMessage();
             $returnArray['status'] = 0;
@@ -56,7 +71,7 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
     }
 
     /**
-     * get iframe url.
+     * Get iframe url.
      *
      * @api
      *
@@ -64,7 +79,7 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
      */
     public function getIframeData()
     {
-        $model = $this->_testApiFactory
+        $model = $this->testApiFactory
                 ->create();
         
         $model->prepareModel(['shop_id', 'customer_info_url']);
@@ -73,25 +88,26 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
     }
 
     /**
-     * set payment data.
+     * Set payment data.
      *
      * @api
      *
      * @param string $econt_id
      * @param float $shipping_price
      * @param float $shipping_price_cod
-     * 
+     *
      * @return int status
      */
     public function setPaymentData($econt_id = null, $shipping_price = null, $shipping_price_cod = null)
     {
-        $model = $this->_testApiFactory->create();
-        if ( ! $econt_id || ! $shipping_price || ! $shipping_price_cod) 
+        $model = $this->testApiFactory->create();
+        if (! $econt_id || ! $shipping_price || ! $shipping_price_cod) {
             return self::SEVERE_ERROR;
+        }
 
-        $model->getCheckoutSession()->setEcontId( $econt_id );
-        $model->getCheckoutSession()->setEcontShippingPrice( $shipping_price );
-        $model->getCheckoutSession()->setEcontShippingPriceCod( $shipping_price_cod );
+        $model->getCheckoutSession()->setEcontId($econt_id);
+        $model->getCheckoutSession()->setEcontShippingPrice($shipping_price);
+        $model->getCheckoutSession()->setEcontShippingPriceCod($shipping_price_cod);
 
         return self::SUCCESS;
     }

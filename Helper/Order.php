@@ -2,144 +2,178 @@
 
 namespace Oxl\Delivery\Helper;
 
-use \Magento\Checkout\Model\Session;
-use \Magento\Framework\App\Helper\Context;
-use \Oxl\Delivery\Model\OxlDeliveryFactory;
-use \Magento\Framework\Message\ManagerInterface;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Helper\Context;
+use Magento\Framework\HTTP\ClientInterface;
+use Magento\Framework\Message\ManagerInterface;
+use Magento\OfflinePayments\Model\Cashondelivery;
+use Oxl\Delivery\Model\OxlDeliveryFactory;
 
-class Order  extends \Magento\Framework\App\Helper\AbstractHelper
+class Order extends \Magento\Framework\App\Helper\AbstractHelper
 {
-    protected $_checkoutSession;
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $checkoutSession;
 
-    protected $_oxlDeliveryFactory;
+    /**
+     * @var \Oxl\Delivery\Model\OxlDelivery
+     */
+    protected $oxlDeliveryFactory;
 
-    protected $_messageManager;
+    /**
+     * @var \Magento\Framework\Message\ManagerInterface
+     */
+    protected $messageManager;
 
-    public function __construct ( 
+    /**
+     * @var \Magento\Framework\HTTP\ClientInterface
+     */
+    protected $client;
+
+    /**
+     * @var \Psr\Log\LoggerInterface
+     */
+    protected $logger;
+
+    /**
+     * Get the module config data
+     *
+     * @param \Magento\Framework\App\Helper\Context $context
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Oxl\Delivery\Model\OxlDeliveryFactory $oxldelivery
+     * @param \Magento\Framework\Message\ManagerInterface $messageManager
+     * @param \Magento\Framework\HTTP\ClientInterface $client
+     */
+    public function __construct(
         Context $context,
         Session $checkoutSession,
         OxlDeliveryFactory $oxldelivery,
-        ManagerInterface $messageManager
-    )
-    {
-        $this->_checkoutSession = $checkoutSession;
-        $this->_oxlDeliveryFactory = $oxldelivery->create();
-        $this->_messageManager = $messageManager;
+        ManagerInterface $messageManager,
+        ClientInterface $client
+    ) {
+        $this->checkoutSession = $checkoutSession;
+        $this->oxlDeliveryFactory = $oxldelivery->create();
+        $this->messageManager = $messageManager;
+        $this->client = $client;
+        $this->logger = $context->getLogger();
         parent::__construct($context);
     }
     /**
-     * If there is an order in Econt syste, it will be updated.
-     * If not - will be created.
-     * 
-     * @param int $local_order If there is a order in our system, the order_id will be used.
-     * @param array $items If array of item ids is passed to the function, will loop trought them.
-     * Other way $order->get_items() will be used.
+     * If there is an order in Econt syste, it will be updated. If not - will be created.
+     *
+     * @param int $order If there is a order in our system, the order_id will be used.
      * @param bool $get_new_price If this is set to true, will send another request to Econt service
      * in order to fetch the order price. This is used in admin dashboard to recalculate shipping
-     * 
+     *
      * @return string - the new price
      * @return bool - false - to finish the execution
      */
-    public function sync_order( $order = null, $get_new_price = false )
+    public function syncOrder($order = null, $get_new_price = false)
     {
-        if ( $order === null ) return false;
-        
-        if (gettype($order) === 'integer' ) {
-            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $order = $objectManager->create('Magento\Sales\Api\Data\OrderInterface')->load(intval($order));
-        }
-        
-        if( $order->getShippingMethod() != 'econtdelivery_econtdelivery' ) return false;
-
-        $data = array(
-            'id' => '', 
-            'orderNumber' => $order->getId(),
-            'status' => $order->getStatus(),
-            'orderTime' => '',
-            'cod' => $order->getPayment()->getMethod() === 'cashondelivery' ? true : '',
-            'partialDelivery' => '',
-            'currency' => $order->getOrderCurrencyCode(),
-            'shipmentDescription' => '',
-            'shipmentNumber' => '',
-            'customerInfo' => array( 
-                'id' => $this->_checkoutSession->getEcontId(),
-                'name' => '',
-                'face' => '',
-                'phone' => '',
-                'email' => '',
-                'countryCode' => '',
-                'cityName' => '',
-                'postCode' => '',
-                'officeCode' => '',
-                'zipCode' => '',
-                'address' => '',
-                'priorityFrom' => '',
-                'priorityTo' => ''
-            ),        
-            'items' => array(
-                
-            ),
-            "packCount" => null,
-            "receiverShareAmount" => null
-        );
-
-        $iteration = count($order->getAllVisibleItems());
-        
-        foreach ($order->getAllVisibleItems() as $item) {                   
-            $price  = $item->getPrice();
-            // $count  = $item->get_quantity();
-            $weight = floatval($item->getWeight());
-            $quantity = intval($item->getQtyOrdered());
-
-            array_push($data['items'], array( 
-                'name' => $item->getName(),
-                'SKU' => $item->getSku(),
-                'URL' => '',
-                'count' => $quantity,
-                'hideCount' => '',
-                'totalPrice' => $price * $quantity,
-                'totalWeight' => $weight * $quantity
-            ));
+        try {
+            if ($order === null) {
+                return false;
+            }
             
-            $data['shipmentDescription'] .= $item->getName() . ($iteration === 1 ? '' : ', ');
-            $iteration -= 1;
-        }
-        
-        mb_strimwidth($data['shipmentDescription'], 0, 160, "...");
-        
-        if( $order->getTotalItemCount() > 1 && $data['cod'] ) $data['partialDelivery'] = true;        
+            if (is_int($order)) {
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $order = $objectManager->create(\Magento\Sales\Api\Data\OrderInterface::class)->load((int)($order));
+            }
+            
+            if ($order->getShippingMethod() != 'econtdelivery_econtdelivery') {
+                return false;
+            }
 
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $this->_oxlDeliveryFactory->getEcontCustomerInfoUrl() . 'services/OrdersService.updateOrder.json');
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, false);
-        curl_setopt($curl, CURLOPT_HTTPHEADER, [
-        'Content-Type: application/json',
-        'Authorization: ' . $this->_oxlDeliveryFactory->getPrivateKey()
-        ]);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, json_encode($data));
-        curl_setopt($curl, CURLOPT_TIMEOUT, 10);
-        // Изпращане на заявката
-        $response = curl_exec($curl);
-        
-        $parsed_error = json_decode($response, true);
-        
-        // dump($parsed_error);
-        if( array_key_exists('type', $parsed_error) ) {            
-            $this->_messageManager->addErrorMessage($parsed_error['message']);
+            $isCod = $order->getPayment()->getMethod() === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE;
+
+            $data = [
+                'id' => '',
+                'orderNumber' => $order->getId(),
+                'status' => $order->getStatus(),
+                'orderTime' => '',
+                'cod' =>  $isCod? true : '',
+                'partialDelivery' => '',
+                'currency' => $order->getOrderCurrencyCode(),
+                'shipmentDescription' => '',
+                'shipmentNumber' => '',
+                'customerInfo' => [
+                    'id' => $this->checkoutSession->getEcontId(),
+                    'name' => '',
+                    'face' => '',
+                    'phone' => '',
+                    'email' => '',
+                    'countryCode' => '',
+                    'cityName' => '',
+                    'postCode' => '',
+                    'officeCode' => '',
+                    'zipCode' => '',
+                    'address' => '',
+                    'priorityFrom' => '',
+                    'priorityTo' => ''
+                ],
+                'items' => [
+                    
+                ],
+                "packCount" => null,
+                "receiverShareAmount" => null
+            ];
+
+            $iteration = count($order->getAllVisibleItems());
+            
+            foreach ($order->getAllVisibleItems() as $item) {
+                $price  = $item->getPrice();
+                // $count  = $item->get_quantity();
+                $weight = floatval($item->getWeight());
+                $quantity = (int)($item->getQtyOrdered());
+
+                array_push($data['items'], [
+                    'name' => $item->getName(),
+                    'SKU' => $item->getSku(),
+                    'URL' => '',
+                    'count' => $quantity,
+                    'hideCount' => '',
+                    'totalPrice' => $price * $quantity,
+                    'totalWeight' => $weight * $quantity
+                ]);
+                
+                $data['shipmentDescription'] .= $item->getName() . ($iteration === 1 ? '' : ', ');
+                --$iteration;
+            }
+            
+            mb_strimwidth($data['shipmentDescription'], 0, 160, "...");
+            
+            if ($order->getTotalItemCount() > 1 && $data['cod']) {
+                $data['partialDelivery'] = true;
+            }
+
+            $url = $this->oxlDeliveryFactory->getEcontCustomerInfoUrl() . 'services/OrdersService.updateOrder.json';
+            $headers = [
+                'Content-Type' => 'application/json',
+                'Authorization' => $this->oxlDeliveryFactory->getPrivateKey()
+            ];
+            $payload = json_encode($data);
+            $this->client->setHeaders($headers);
+            $this->client->setOptions([
+                CURLOPT_SSL_VERIFYPEER => false,
+                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_TIMEOUT => 6
+            ]);
+            $this->client->post($url, $payload);
+
+            $res = $this->client->getBody();
+            $response = json_decode($res, true);
+
+            // Invalid username and password connection with Econt service
+            if (array_key_exists('type', $response) && $response['type'] === 'ExAccessDenied') {
+                $this->logger->error('Econt: Invalid private key. ' . $response['message']);
+            }
+
+            $this->checkoutSession->unsEcontShippingPriceCod();
+        } catch (\Exception $ex) {
+            $this->logger->error($ex->getMessage());
+            $this->messageManager->addErrorMessage($ex->getMessage());
             return false;
         }
-
-        $this->_checkoutSession->unsEcontShippingPriceCod();
-        return;
-
-        // if ( $get_new_price ) {
-        //     curl_setopt($curl, CURLOPT_URL, $this->get_service_url() . 'services/OrdersService.getPrice.json');
-        //     $price = curl_exec($curl);
-
-        //     return json_decode($price, true)['receiverDueAmount'];
-        // }
-    }    
+    }
 }

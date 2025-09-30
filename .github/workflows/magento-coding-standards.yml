@@ -1,0 +1,25 @@
+name: Magento 2 Coding Standards
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  magento-coding-standards:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer, cs2pr, phpcs
+
+      - name: Run Magento Coding Standard
+        run: |
+          phpcs --standard=PSR2 .

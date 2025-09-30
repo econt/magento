@@ -5,6 +5,7 @@ namespace Oxl\Delivery\Model\Carrier;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Carrier\CarrierInterface;
+use Magento\OfflinePayments\Model\Cashondelivery;
 
 /**
  * Custom shipping model
@@ -14,12 +15,7 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
     /**
      * @var string
      */
-    protected $_code = 'econtdelivery';
-
-    /**
-     * @var bool
-     */
-    protected $_isFixed = false;
+    protected $_code = 'econtdelivery';// phpcs:ignore
 
     /**
      * @var \Magento\Shipping\Model\Rate\ResultFactory
@@ -31,7 +27,10 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
      */
     private $rateMethodFactory;
 
-    protected $_checkoutSession;
+    /**
+     * @var \Magento\Checkout\Model\Session
+     */
+    protected $checkoutSession;
 
     /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
@@ -39,9 +38,8 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
-     * @param array $data
-     * @param  \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param array $data
      */
     public function __construct(
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -56,7 +54,7 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
 
         $this->rateResultFactory = $rateResultFactory;
         $this->rateMethodFactory = $rateMethodFactory;
-        $this->_checkoutSession = $checkoutSession;
+        $this->checkoutSession = $checkoutSession;
     }
 
     /**
@@ -66,16 +64,16 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
      * @return \Magento\Shipping\Model\Rate\Result|bool
      */
     public function collectRates(RateRequest $request)
-    {        
+    {
         $price = 0;
-        $payment_method = $this->_checkoutSession->getQuote()->getPayment()->getMethod();
-        if ( $this->_checkoutSession->getEcontShippingPriceCod() ) {
-            $price = $this->_checkoutSession->getEcontShippingPriceCod();
-        } else if ( $payment_method != null && $payment_method === 'cashondelivery' ) {
-            $price = $this->_checkoutSession->getEcontShippingPriceCod();
-        } else if ( $payment_method != null ) {
-            $price = $this->_checkoutSession->getEcontShippingPrice();
-        } 
+        $payment_method = $this->checkoutSession->getQuote()->getPayment()->getMethod();
+        if ($this->checkoutSession->getEcontShippingPriceCod()) {
+            $price = $this->checkoutSession->getEcontShippingPriceCod();
+        } elseif ($payment_method != null && $payment_method === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE) {
+            $price = $this->checkoutSession->getEcontShippingPriceCod();
+        } elseif ($payment_method != null) {
+            $price = $this->checkoutSession->getEcontShippingPrice();
+        }
         if (!$this->getConfigFlag('active')) {
             return false;
         }

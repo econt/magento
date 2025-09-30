@@ -1,17 +1,16 @@
+<?php
+/** @var \Magento\Framework\Escaper $escaper */
+?>
 <div id="meee">
     <div id="econt-iframe-modal">
         <div id="place_iframe_here" class="content"></div>
     </div>
 </div>
-
-<?php
-    $ajaxurl = $block->getAjaxUrl();
-?>
 <script type="text/x-magento-init">
     {
         "*": {
             "Oxl_Delivery/js/view/cms-block": {
-                "AjaxUrl": "<?php echo $ajaxurl; ?>"
+                "AjaxUrl": "<?= $escaper->escapeHtml($block->getAjaxUrl()); ?>"
             }
         }
     }

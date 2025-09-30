@@ -1,15 +1,15 @@
 define([
     'uiComponent',
-    'jquery',     
+    'jquery',
     'Magento_Ui/js/modal/modal'
 ], function (Component, $, modal) {
     'use strict';
 
-    window.addEventListener('message', function(message) {
+    window.addEventListener('message', function (message) {
         /**
          * check if this "message" comes from econt delivery system
          */
-        if(message.origin.indexOf("//delivery") < 0 ){
+        if (message.origin.indexOf("//delivery") < 0 ) {
             return;
         }
         
@@ -24,12 +24,12 @@ define([
         if ( data.shipment_error ) {
             content = data.shipment_error
         } else {
-            econtModalHelper.updateShippingAddress( data );
+            econtModalHelper.updateShippingAddress(data);
             proceed = true
-            content = $.mage.__( 'Цена на доставката: ' )
-                + data['shipping_price'] + ' ' + data['shipping_price_currency_sign'] 
-                + " ( + " + econtModalHelper.shipping_price_cod + ' ' + data['shipping_price_currency_sign'] 
-                + $.mage.__( ' наложен платеж' ) + ').'
+            content = $.mage.__('Цена на доставката: ')
+                + data['shipping_price'] + ' ' + data['shipping_price_currency_sign']
+                + " ( + " + econtModalHelper.shipping_price_cod + ' ' + data['shipping_price_currency_sign']
+                + $.mage.__(' наложен платеж') + ').'
         }
 
         modal.modal('toggleModal')
@@ -45,7 +45,7 @@ define([
                     const button = document.getElementById('econtGetModalData');
 
                     if (button) {
-                        button.addEventListener('click', function() {
+                        button.addEventListener('click', function () {
                             econtModalHelper.loadModal();
                         });
                     }

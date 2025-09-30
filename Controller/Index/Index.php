@@ -37,33 +37,15 @@ class Index extends \Magento\Framework\App\Action\Action
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Framework\View\Result\PageFactory $resultPageFactory
      * @param \Magento\Framework\Controller\Result\ForwardFactory $resultForwardFactory
-     * @param \Aion\Test\Helper\Data $helper
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
         ForwardFactory $resultForwardFactory
-        // \Aion\Test\Helper\Data $helper
     ) {
         $this->resultPageFactory = $resultPageFactory;
         $this->resultForwardFactory = $resultForwardFactory;
-        // $this->helper = $helper;
         parent::__construct($context);
-    }
-
-    /**
-     * Dispatch request
-     *
-     * @param RequestInterface $request
-     * @return \Magento\Framework\App\ResponseInterface
-     * @throws \Magento\Framework\Exception\NotFoundException
-     */
-    public function dispatch(RequestInterface $request)
-    {
-        // if (!$this->helper->isEnabled()) {
-        //     throw new NotFoundException(__('Page not found.'));
-        // }
-        return parent::dispatch($request);
     }
 
     /**
@@ -82,9 +64,4 @@ class Index extends \Magento\Framework\App\Action\Action
         }
         return $resultPage;
     }
-
-    public function get_iframe(RequestInterface $request)
-    {
-        // var_dump($request); die;
-    }
-} 
+}
