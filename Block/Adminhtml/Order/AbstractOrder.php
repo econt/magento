@@ -8,7 +8,7 @@ class AbstractOrder extends OrderAbstract
 {
     /**
      * Retrieve helper
-     * 
+     *
      * @param string $class
      *
      * @return \Magento\Tax\Helper\Data
