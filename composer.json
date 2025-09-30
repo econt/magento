@@ -1,11 +1,8 @@
 {
     "name": "oxl/delivery",
-    "description": " 'Deliver With Econt' implementation model",
+    "description": "'Deliver With Econt' implementation model",
     "config": {
-        "sort-packages": true,
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+        "sort-packages": true
     },
     "require": {
         "php": "^8.1",
@@ -34,5 +31,5 @@
             "Oxl\\Delivery\\": ""
         }
     },
-    "version": "1.0.2"
+    "version": "1.0.3"
 }
