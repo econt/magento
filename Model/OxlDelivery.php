@@ -16,7 +16,7 @@ class OxlDelivery implements OxlDeliveryInterface
 {
     public const REAL_URL = 'https://delivery.econt.com/';
     
-    public const DEMO_URL = 'http://delivery.demo.econt.com/';
+    public const DEMO_URL = 'https://delivery-demo.econt.com/';
 
     /**
      * @var \Oxl\Delivery\Helper\Data
