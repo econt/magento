@@ -19,8 +19,7 @@
     },
     "type": "magento2-module",
     "license": [
-        "OSL-3.0",
-        "AFL-3.0"
+        "MIT"
     ],
     "minimum-stability": "stable",
     "autoload": {
