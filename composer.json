@@ -1,5 +1,5 @@
 {
-    "name": "econt/magento2-delivery",
+    "name": "econt-express/magento2-delivery",
     "description": "'Deliver With Econt' implementation model",
     "config": {
         "sort-packages": true
