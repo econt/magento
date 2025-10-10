@@ -1,6 +1,3 @@
-<?php
-// phpcs:disable Generic.Files.LineLength.TooLong
-?>
 <?php /** @var $block Oxl\Delivery\Block\Adminhtml\Shipping\OxlTracking */?>
 <script>
 require([
@@ -21,7 +18,10 @@ require([
         main: function() {
             alert('main');
         },
-        check: function (order_id, waybill_id = 99999999, currency = "<?= $escaper->escapeHtml($block->getCurrency()) ?>", s = null, i = null) {
+        check: function (order_id, 
+            waybill_id = 99999999, 
+            currency = "<?= $escaper->escapeHtml($block->getCurrency()) ?>", s = null, i = null
+        ) {
             dwe("body").trigger('processStart');
             dwe.ajax({
                 url: this.econtUrl + 'services/OrdersService.getTrace.json',
@@ -51,7 +51,8 @@ require([
                 },
                 // handle error (alert the error)
                 error: function ( error ) {
-                    alert( 'Отговор от Еконт: ' + error.responseJSON.message + "\r\nСървърен код - " + error.status + ' ( ' + error.statusText + ' ).');
+                    alert( 'Отговор от Еконт: ' + error.responseJSON.message + "\r\nСървърен код - " + error.status + 
+                    ' ( ' + error.statusText + ' ).');
                     if ( s && i ) {
                         s.css('visibility', 'visible');
                         dwe(i).removeClass('is-active');
@@ -119,7 +120,8 @@ require([
     /**
      * Да правя проверка дали шипинга има тракинг още в началото. Ако да - да пише отпечатай.
      * Като натисна чек статус, ако има тракинг, да обновявам нещата и да пиша отпечатай.
-     * Като натисна генерирай, след модала, да обновявам нещата и да пиша отпечатай и да слагам тракинга в реда и да отварям шипинга в нов прозорец
+     * Като натисна генерирай, след модала, да обновявам нещата и да пиша отпечатай и 
+     * да слагам тракинга в реда и да отварям шипинга в нов прозорец
      */
     /**
      * check if this "message" comes from econt delivery system
@@ -172,7 +174,12 @@ require([
                 <span>Generate with Econt</span>
             </button>
         </div>
-        <button id="oxl_check_status" title="Check Tracking Status" type="button" class="action-default scalable" onclick="oxlTrackingInfo.check()" data-ui-id="oxl-check-tracking-status">
+        <button id="oxl_check_status" title="Check Tracking Status" 
+            type="button" 
+            class="action-default scalable" 
+            onclick="oxlTrackingInfo.check()" 
+            data-ui-id="oxl-check-tracking-status"
+        >
             <span>Check status</span>
         </button>
     </div>

@@ -37,29 +37,5 @@
             </argument>
         </arguments>
     </referenceBlock>
-        <!-- <referenceBlock name="checkout.root">
-            <arguments>
-                <argument name="jsLayout" xsi:type="array">
-                    <item name="components" xsi:type="array">
-                        <item name="checkout" xsi:type="array">
-                            <item name="children" xsi:type="array">
-                                <item name="steps" xsi:type="array">
-                                    <item name="children" xsi:type="array">
-                                        <item name="cms-block" xsi:type="array">
-                                            
-                                                <item name='template' xsi:type='string'>Oxl_Delivery::cms_block.phtml</item>
-                                            <item name="component" xsi:type="string">Oxl_Delivery/js/view/cms-block</item>
-                                            <item name="sortOrder" xsi:type="string">10</item>
-                                            <arguments>
-                                            </arguments>
-                                        </item>
-                                    </item>
-                                </item>
-                            </item>
-                        </item>
-                    </item>
-                </argument>
-            </arguments>
-        </referenceBlock> -->
     </body>
 </page>

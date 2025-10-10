@@ -102,6 +102,8 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
     }
 
     /**
+     * Get allowed shipping methods
+     *
      * @return array
      */
     public function getAllowedMethods()
