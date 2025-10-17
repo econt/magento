@@ -20,6 +20,10 @@ jobs:
           coverage: none
           tools: composer, cs2pr, phpcs
 
+      - name: Install dev dependencies only
+        run: |
+          composer install --no-interaction --prefer-dist --optimize-autoloader --dev
+
       - name: Run Magento Coding Standard
         run: |
-          phpcs --standard=PSR2 .
+          phpcs --standard=Magento2 --severity=10 .
