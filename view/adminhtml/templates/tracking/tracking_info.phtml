@@ -169,7 +169,13 @@ require([
                 <span><?= $escaper->escapeHtml(__('Generate with Econt')) ?></span>
             </button>
         </div>
-        <button id="oxl_check_status" title="<?= $escaper->escapeHtml(__('Check Tracking Status')) ?>" type="button" class="action-default scalable" onclick="oxlTrackingInfo.check()" data-ui-id="oxl-check-tracking-status">
+        <button
+            id="oxl_check_status"
+            title="<?= $escaper->escapeHtml(__('Check Tracking Status')) ?>" 
+            type="button" class="action-default scalable" 
+            onclick="oxlTrackingInfo.check()" 
+            data-ui-id="oxl-check-tracking-status"
+        >
             <span><?= $escaper->escapeHtml(__('Check status')) ?></span>
         </button>
     </div>
