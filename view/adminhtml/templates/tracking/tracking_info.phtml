@@ -4,9 +4,10 @@ require([
     'jquery', 
     'mage/template',
     'Magento_Ui/js/modal/modal',
+    'mage/translate',
     'loader', 
     'prototype'
-], function(dwe, mageTemplate, modal){
+], function(dwe, mageTemplate, modal, $t){
     //<![CDATA[
     var oxlTrackingInfo;
     oxlTrackingInfo = {
@@ -76,7 +77,7 @@ require([
                     modalClass: "oxl-modal",
                     responsive: true,
                     responsiveClass: "modal-responsive",
-                    title: "Deliver With Econt",
+                    title: $t("Deliver With Econt"),
                     buttons: []
                 };            
                 dwe('#oxl-modal').modal(data);
@@ -109,7 +110,7 @@ require([
             dwe("body").trigger('processStop');
         },
         updateButtons: function() {
-            dwe('#oxl-tracking-status span').text('Print');
+            dwe('#oxl-tracking-status span').text($t('Print'));
             this.hasTracking = true;
         }
     };    
@@ -117,12 +118,6 @@ require([
     window.oxlTrackingInfo = oxlTrackingInfo;
 
     window.addEventListener( 'message', function( message ) {
-    /**
-     * Да правя проверка дали шипинга има тракинг още в началото. Ако да - да пише отпечатай.
-     * Като натисна чек статус, ако има тракинг, да обновявам нещата и да пиша отпечатай.
-     * Като натисна генерирай, след модала, да обновявам нещата и да пиша отпечатай и 
-     * да слагам тракинга в реда и да отварям шипинга в нов прозорец
-     */
     /**
      * check if this "message" comes from econt delivery system
      */
@@ -168,19 +163,20 @@ require([
         <div class="dashboard-advanced-reports-actions">
             <button id="oxl-tracking-status" type="button" class="action action-advanced-reports" 
                 data-index="analytics-service-link" 
-                title="Generate Waybill" 
+                title="<?= $escaper->escapeHtml(__('Generate Waybill')) ?>" 
                 onclick="oxlTrackingInfo.loadModal()" 
                 data-ui-id="oxl-tracking-status">
-                <span>Generate with Econt</span>
+                <span><?= $escaper->escapeHtml(__('Generate with Econt')) ?></span>
             </button>
         </div>
-        <button id="oxl_check_status" title="Check Tracking Status" 
-            type="button" 
-            class="action-default scalable" 
+        <button
+            id="oxl_check_status"
+            title="<?= $escaper->escapeHtml(__('Check Tracking Status')) ?>" 
+            type="button" class="action-default scalable" 
             onclick="oxlTrackingInfo.check()" 
             data-ui-id="oxl-check-tracking-status"
         >
-            <span>Check status</span>
+            <span><?= $escaper->escapeHtml(__('Check status')) ?></span>
         </button>
     </div>
 </div>

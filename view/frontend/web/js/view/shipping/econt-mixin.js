@@ -64,26 +64,12 @@ define([
                         if ( quote.shippingMethod().carrier_code != "econtdelivery" ) {
                             stepNavigator.next();
                         } else {
-                          // console.log(quote.getTotals()());
                             if (mixin.checkShippingPrice(quote.getTotals()())) {
                                 stepNavigator.next();
                             } else {
                                 alert({
-                                    title: $.mage.__('Доставка с Еконт'),
-                                    content: 'Трябва да калкулирате цена на доставка! Моля използвайте бутона "Калкулирай цена"',
-                                  // actions: {
-                                  //     always: function(){
-                                  //         if ( proceed && data ) {
-                                  //             _that.updateShippingPrice( data );
-                                  //             $( '#place_iframe_here' ).empty();
-                                  //             _that.storeSessionPriceData( data );
-                                  //         }
-                                  //         else {
-                                  //             if (modal)
-                                  //                 modal.modal('toggleModal');
-                                  //         }
-                                  //     }
-                                  // }
+                                    title: $.mage.__('Delivery with Econt'),
+                                    content: $.mage.__("You need to calculate the delivery price! Please use the 'Calculate Price' button."),
                                 });
                             }
                         }
@@ -109,7 +95,6 @@ define([
     };
   
     return function (target) {
- // target == Result that Magento_Ui/.../default returns.
-        return target.extend(mixin); // new result that all other modules receive
+        return target.extend(mixin);
     }
 });

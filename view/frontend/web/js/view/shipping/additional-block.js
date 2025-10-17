@@ -26,10 +26,10 @@ define([
         } else {
             econtModalHelper.updateShippingAddress(data);
             proceed = true
-            content = $.mage.__('Цена на доставката: ')
+            content = $.mage.__('Delivery cost') + ': '
                 + data['shipping_price'] + ' ' + data['shipping_price_currency_sign']
                 + " ( + " + econtModalHelper.shipping_price_cod + ' ' + data['shipping_price_currency_sign']
-                + $.mage.__(' наложен платеж') + ').'
+                + ' ' + $.mage.__('cash on delivery') + ').'
         }
 
         modal.modal('toggleModal')
