@@ -27,4 +27,4 @@ jobs:
 
       - name: Run Magento Coding Standard
         run: |
-          phpcs --standard=Magento2 --severity=10 .
+          phpcs --standard=Magento2 --ignore=*.xml .
