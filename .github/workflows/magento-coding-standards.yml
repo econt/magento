@@ -22,6 +22,7 @@ jobs:
 
       - name: Install dev dependencies only
         run: |
+          composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
           composer global require magento/magento-coding-standard
 
       - name: Run Magento Coding Standard
