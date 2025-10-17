@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dev dependencies only
         run: |
-          composer install --no-interaction --prefer-dist --optimize-autoloader --dev
+          composer global require magento/magento-coding-standard
 
       - name: Run Magento Coding Standard
         run: |
