@@ -1,5 +1,4 @@
 <?php
-// phpcs:disable Generic.Files.LineLength.TooLong
 /** @var \Magento\Shipping\Block\Adminhtml\View $block */
 /** @var \Magento\Framework\Escaper $escaper */
 /** @var \Magento\Sales\Model\Order $order */
@@ -11,8 +10,10 @@ $order = $block->getOrder();
     <?php else: ?>
     <button id="oxl-tracking-status" type="button" class="action action-advanced-reports" 
         data-index="analytics-service-link" 
-        title="Generate Waybill" 
-        onclick="popWin('<?= $escaper->escapeUrl($block->getWaybillPopupUrl()); ?>','trackshipment','width=800,height=600,resizable=yes,scrollbars=yes')"
+        title="<?= $escaper->escapeHtml(__('Generate Waybill')) ?>" 
+        onclick="popWin('<?= $escaper->escapeUrl($block->getWaybillPopupUrl()); ?>',
+            'trackshipment',
+            'width=800,height=600,resizable=yes,scrollbars=yes')"
         data-ui-id="oxl-tracking-status">
         <span><?= $escaper->escapeHtml(__('Print')); ?></span>
     </button>

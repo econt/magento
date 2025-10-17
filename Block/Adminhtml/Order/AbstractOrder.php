@@ -17,4 +17,20 @@ class AbstractOrder extends OrderAbstract
     {
         return \Magento\Framework\App\ObjectManager::getInstance()->get($class);
     }
+
+    /**
+     * Render block HTML
+     *
+     * @return string
+     */
+    public function _toHtml()
+    {
+        $order = $this->getOrder();
+
+        if ($order->getIsVirtual()) {
+            return '';
+        }
+
+        return parent::_toHtml();
+    }
 }

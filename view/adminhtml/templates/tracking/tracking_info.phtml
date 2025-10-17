@@ -1,6 +1,3 @@
-<?php
-// phpcs:disable Generic.Files.LineLength.TooLong
-?>
 <?php /** @var $block Oxl\Delivery\Block\Adminhtml\Shipping\OxlTracking */?>
 <script>
 require([
@@ -22,7 +19,10 @@ require([
         main: function() {
             alert('main');
         },
-        check: function (order_id, waybill_id = 99999999, currency = "<?= $escaper->escapeHtml($block->getCurrency()) ?>", s = null, i = null) {
+        check: function (order_id, 
+            waybill_id = 99999999, 
+            currency = "<?= $escaper->escapeHtml($block->getCurrency()) ?>", s = null, i = null
+        ) {
             dwe("body").trigger('processStart');
             dwe.ajax({
                 url: this.econtUrl + 'services/OrdersService.getTrace.json',
@@ -52,7 +52,8 @@ require([
                 },
                 // handle error (alert the error)
                 error: function ( error ) {
-                    alert( 'Отговор от Еконт: ' + error.responseJSON.message + "\r\nСървърен код - " + error.status + ' ( ' + error.statusText + ' ).');
+                    alert( 'Отговор от Еконт: ' + error.responseJSON.message + "\r\nСървърен код - " + error.status + 
+                    ' ( ' + error.statusText + ' ).');
                     if ( s && i ) {
                         s.css('visibility', 'visible');
                         dwe(i).removeClass('is-active');
