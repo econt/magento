@@ -62,10 +62,11 @@ define([
                 }
                 var data;
                 var footer;
-                let cdata
-                cdata = customerData.get('checkout-data')();
+                const cdata = customerData.get('checkout-data')();
+
+                const address = quote.shippingAddress();
                 
-                if ( !this.checkCustomerData(cdata) ) {
+                if ( !this.checkCustomerData(address) ) {
                     this.showAlert($.mage.__('Моля попълнете всички задължителни полета!'));
                     return
                 }
@@ -88,20 +89,22 @@ define([
                 var orderParams = {};
                 var items = quote.getItems();
 
+                const address = quote.shippingAddress();
+
                 orderParams.order_total = checkoutConfig.totalsData.subtotal_with_discount;
                 orderParams.order_currency = checkoutConfig.totalsData.quote_currency_code;
-                orderParams.customer_name = cdata.shippingAddressFromData.default.firstname + ' ' + cdata.shippingAddressFromData.default.lastname;
-                orderParams.customer_company = cdata.shippingAddressFromData.default.company;
+                orderParams.customer_name = address?.firstname + ' ' + address?.lastname;
+                orderParams.customer_company = address?.company;
                 orderParams.customer_address = '';
                 orderParams.order_weight = 0;
-                orderParams.customer_city_name = cdata.shippingAddressFromData.default.city;
-                orderParams.customer_post_code = cdata.shippingAddressFromData.default.postcode;
-                orderParams.customer_phone = cdata.shippingAddressFromData.default.telephone;
+                orderParams.customer_city_name = address?.city;
+                orderParams.customer_post_code = address?.postcode;
+                orderParams.customer_phone = address?.telephone;
                 orderParams.ignore_history = 1;
                 orderParams.customer_email = cdata.validatedEmailValue;
 
-                _.forEach(cdata.shippingAddressFromData.default.street, function (str, index) {
-                    if ( index > 0 && str.length > 0 && index <= (_.size(cdata.shippingAddressFromData.default.street) - 1) ) {
+                _.forEach(address?.street, function (str, index) {
+                    if ( index > 0 && str.length > 0 && index <= (_.size(address.street) - 1) ) {
                         orderParams.customer_address += ', ';
                     }
                     orderParams.customer_address += str;
@@ -112,9 +115,7 @@ define([
                 })
                 
                 $.ajax({
-                    // showLoader: true,
                     url: url + 'rest/V1/econt/delivery/get-iframe-data',
-                    // data: param,
                     type: "GET",
                     dataType: 'json'
                 }).done(function (data) {
@@ -344,21 +345,13 @@ define([
                     }
                 });
             },
-            checkCustomerData: function (data) {
-                var succss = false;
-                _.forEach(data.shippingAddressFromData, function (value, key) {
-                    if (key != 'region' && value != "") {
-                        succss = true;
-                    } else if (key != 'company' && value != "") {
-                        succss = true;
-                    } else if (key === 'region' || key === 'company') {
-                        succss = true;
-                    } else {
-                        succss = false;
-                    }
-                })
-
-                return succss;
+            hasValidProps: function (obj, props) {
+                return props.every(key => 
+                    obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== ''
+                );
+            },
+            checkCustomerData: function (shippingAddress) {
+                return this.hasValidProps(shippingAddress, ['firstname', 'lastname', 'street', 'city', 'postcode']);
             }
         }
 
