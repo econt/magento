@@ -347,7 +347,7 @@ define([
             },
             hasValidProps: function (obj, props) {
                 return props.every(key => 
-                    obj.hasOwnProperty(key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== ''
+                    Object.prototype.hasOwnProperty.call(obj, key) && obj[key] !== null && obj[key] !== undefined && obj[key] !== ''
                 );
             },
             checkCustomerData: function (shippingAddress) {
