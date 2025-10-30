@@ -5,7 +5,7 @@
         "sort-packages": true
     },
     "require": {
-        "php": ">=7.4",
+        "php": "^7.4 || ^8.0",
         "magento/framework": "103.0.*",
         "magento/module-backend": "102.0.*",
         "magento/module-catalog": "104.0.*",
@@ -30,5 +30,5 @@
             "Oxl\\Delivery\\": ""
         }
     },
-    "version": "1.0.7"
+    "version": "1.0.8"
 }
