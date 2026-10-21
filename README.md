@@ -16,6 +16,21 @@
 
 Поддръжката на 2.4.2 и 2.4.3 е добавена във версия 1.0.8 на модула.
 
+## Инсталация
+
+### През Composer
+
+```bash
+composer require econt-express/magento2-delivery
+bin/magento setup:upgrade
+```
+
+### През архив
+
+Свалете „Source code (zip)“ от [последния release](https://github.com/econt/magento/releases/latest) и разархивирайте съдържанието в `app/code/Oxl/Delivery`. После изпълнете `bin/magento setup:upgrade` в главната директория на Magento.
+
+Подробно: [Инсталация](https://github.com/econt/magento/wiki/Инсталация) в wiki-то.
+
 ## Лиценз
 
 MIT
