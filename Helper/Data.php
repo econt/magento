@@ -127,8 +127,8 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             ]);
             $this->client->setHeaders($headers);
             $this->client->setOptions([
-                CURLOPT_SSL_VERIFYPEER => false,
-                CURLOPT_SSL_VERIFYHOST => false,
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
                 CURLOPT_TIMEOUT => 6
             ]);
             $this->client->post($url, $payload);
