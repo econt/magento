@@ -101,13 +101,15 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
     public function setPaymentData($econt_id = null, $shipping_price = null, $shipping_price_cod = null)
     {
         $model = $this->testApiFactory->create();
-        if (! $econt_id || ! $shipping_price || ! $shipping_price_cod) {
+        if (! $econt_id) {
             return self::SEVERE_ERROR;
         }
 
+        // Only the customer info id of the confirmed Econt form is kept. The prices come from the Econt server
+        // (Helper\Data::getQuoteShippingCost), so the prices in the request are not used. The form keeps its id when
+        // the customer changes the address in it, so the prices for the id are asked again.
         $model->getCheckoutSession()->setEcontId($econt_id);
-        $model->getCheckoutSession()->setEcontShippingPrice($shipping_price);
-        $model->getCheckoutSession()->setEcontShippingPriceCod($shipping_price_cod);
+        $model->getCheckoutSession()->setEcontServerPrices(null);
 
         return self::SUCCESS;
     }

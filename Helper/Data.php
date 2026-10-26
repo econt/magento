@@ -143,6 +143,104 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
 
     /**
+     * Econt shipping cost of a quote, with the prices from the Econt server (OrdersService.getPrice) for the customer
+     * info id from the Econt form. The amounts are in the base currency, like the shipping rates.
+     *
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Magento\Quote\Model\Quote $quote
+     * @param float $total Base subtotal with discount of the shipping address
+     * @param float $weight Weight of the shipping address
+     * @param bool $fresh Ask Econt even if the prices are in the session
+     * @return float|null null without a confirmed Econt form or if Econt gives no price
+     */
+    public function getQuoteShippingCost($checkoutSession, $quote, $total, $weight, $fresh = false)
+    {
+        $customerInfoId = trim((string)$checkoutSession->getEcontId());
+        if ($customerInfoId === '') {
+            return null;
+        }
+
+        $total = round((float)$total, 2);
+        $weight = round((float)$weight, 3);
+        $currency = (string)$quote->getBaseCurrencyCode();
+
+        // One request to Econt per address and cart; the session is cleared when the Econt form is confirmed again
+        $key = md5(implode('|', [$customerInfoId, $total, $weight, $currency]));
+        $cached = $checkoutSession->getEcontServerPrices();
+        $prices = (!$fresh && is_array($cached) && ($cached['key'] ?? '') === $key) ? $cached['prices'] : null;
+
+        if (!$prices) {
+            $price = $this->getEcontPrice($customerInfoId, $total, $weight, $currency, false);
+            if ($price === null) {
+                return null;
+            }
+
+            // Like the Econt form: an order without a total has no cash on delivery
+            $priceCod = $total > 0 ? $this->getEcontPrice($customerInfoId, $total, $weight, $currency, true) : $price;
+            if ($priceCod === null) {
+                return null;
+            }
+
+            $prices = ['price' => $price, 'price_cod' => $priceCod];
+            $checkoutSession->setEcontServerPrices(['key' => $key, 'prices' => $prices]);
+        }
+
+        // Cash on delivery unless another payment method is chosen, as the checkout of the module did so far
+        $paymentMethod = $quote->getPayment() ? $quote->getPayment()->getMethod() : null;
+
+        return ($paymentMethod && $paymentMethod !== 'cashondelivery') ? $prices['price'] : $prices['price_cod'];
+    }
+
+    /**
+     * Shipping price (receiverDueAmount) from OrdersService.getPrice. Without an order number Econt calculates it on
+     * a temporary order and saves nothing.
+     *
+     * @param string $customerInfoId
+     * @param float $total
+     * @param float $weight
+     * @param string $currency
+     * @param bool $cod
+     * @return float|null null on a connection error or an error from Econt
+     */
+    private function getEcontPrice($customerInfoId, $total, $weight, $currency, $cod)
+    {
+        try {
+            $this->client->setHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => $this->getPrivateKey()
+            ]);
+            $this->client->setOptions([
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_TIMEOUT => 6
+            ]);
+            $this->client->post($this->getServiceUrl() . 'services/OrdersService.getPrice.json', json_encode([
+                'cod' => (bool)$cod,
+                'currency' => $currency,
+                'customerInfo' => ['id' => $customerInfoId],
+                'items' => [[
+                    'name' => 'Order',
+                    'count' => 1,
+                    'totalPrice' => $total,
+                    'totalWeight' => $weight
+                ]]
+            ]));
+            $status = (int)$this->client->getStatus();
+            $result = json_decode((string)$this->client->getBody(), true);
+        } catch (\Exception $ex) {
+            $this->_logger->error('Econt: getPrice failed: ' . $ex->getMessage());
+            return null;
+        }
+
+        if ($status !== 200 || !isset($result['receiverDueAmount']) || !is_numeric($result['receiverDueAmount'])) {
+            $this->_logger->error(sprintf('Econt: getPrice failed [%d] %s', $status, $result['message'] ?? ''));
+            return null;
+        }
+
+        return round((float)$result['receiverDueAmount'], 2);
+    }
+
+    /**
      * Calculate cart price
      *
      * @param array $cart The cart items
