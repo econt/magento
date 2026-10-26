@@ -79,9 +79,13 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
         // The price comes from the Econt server for the customer info id from the Econt form, not from the prices
         // that the browser sends. Until the customer confirms the form, or if Econt gives no price, it is 0 and the
         // order is not placed (Observer\CheckShippingPrice).
+        // The quote of the rate request; the checkout session may have another one in a REST request
+        $items = $request->getAllItems();
+        $quote = $items ? reset($items)->getQuote() : $this->checkoutSession->getQuote();
+
         $price = $this->helper->getQuoteShippingCost(
             $this->checkoutSession,
-            $this->checkoutSession->getQuote(),
+            $quote,
             $request->getPackageValueWithDiscount(),
             $request->getPackageWeight()
         ) ?? 0;
