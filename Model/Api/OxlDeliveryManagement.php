@@ -5,7 +5,6 @@ namespace Oxl\Delivery\Model\Api;
 use \Oxl\Delivery\Api\OxlDeliveryManagementInterface;
 use \Oxl\Delivery\Model\OxlDeliveryFactory;
 use \Oxl\Delivery\Helper\DataFactory;
-use \Oxl\Delivery\Helper\Order;
 
 class OxlDeliveryManagement implements OxlDeliveryManagementInterface
 {
@@ -22,52 +21,19 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
      * @var \Oxl\Delivery\Helper\Data
      */
     protected $helper;
-
-    /**
-     * @var \Oxl\Delivery\Helper\Order
-     */
-    protected $order;
     
     /**
      * Constructor
      *
      * @param OxlDeliveryFactory $testApiFactory
      * @param DataFactory $data
-     * @param Order $order
      */
     public function __construct(
         OxlDeliveryFactory $testApiFactory,
-        DataFactory $data,
-        Order $order
+        DataFactory $data
     ) {
         $this->testApiFactory = $testApiFactory;
         $this->helper = $data;
-        $this->order = $order;
-    }
-
-    /**
-     * Get test Api data.
-     *
-     * @api
-     *
-     * @param int $id
-     *
-     * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
-     */
-    public function getApiData($id)
-    {
-        try {
-            $this->order->syncOrder(1);
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $returnArray['error'] = $e->getMessage();
-            $returnArray['status'] = 0;
-            return $returnArray;
-        } catch (\Exception $e) {
-            dd($e);
-            $returnArray['error'] = __('unable to process request');
-            $returnArray['status'] = 2;
-            return $returnArray;
-        }
     }
 
     /**

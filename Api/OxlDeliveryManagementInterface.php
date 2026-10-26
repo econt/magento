@@ -9,17 +9,6 @@ interface OxlDeliveryManagementInterface
      *
      * @api
      *
-     * @param int $id
-     *
-     * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
-     */
-    public function getApiData($id);
-
-    /**
-     * Get test Api data.
-     *
-     * @api
-     *
      * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
      */
     public function getIframeData();
