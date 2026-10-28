@@ -5,7 +5,6 @@ namespace Oxl\Delivery\Model\Carrier;
 use Magento\Quote\Model\Quote\Address\RateRequest;
 use Magento\Shipping\Model\Carrier\AbstractCarrier;
 use Magento\Shipping\Model\Carrier\CarrierInterface;
-use Magento\OfflinePayments\Model\Cashondelivery;
 
 /**
  * Custom shipping model
@@ -33,12 +32,18 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
     protected $checkoutSession;
 
     /**
+     * @var \Oxl\Delivery\Helper\Data
+     */
+    private $helper;
+
+    /**
      * @param \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig
      * @param \Magento\Quote\Model\Quote\Address\RateResult\ErrorFactory $rateErrorFactory
      * @param \Psr\Log\LoggerInterface $logger
      * @param \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory
      * @param \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory
      * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Oxl\Delivery\Helper\Data $helper
      * @param array $data
      */
     public function __construct(
@@ -48,6 +53,7 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
         \Magento\Shipping\Model\Rate\ResultFactory $rateResultFactory,
         \Magento\Quote\Model\Quote\Address\RateResult\MethodFactory $rateMethodFactory,
         \Magento\Checkout\Model\Session $checkoutSession,
+        \Oxl\Delivery\Helper\Data $helper,
         array $data = []
     ) {
         parent::__construct($scopeConfig, $rateErrorFactory, $logger, $data);
@@ -55,6 +61,7 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
         $this->rateResultFactory = $rateResultFactory;
         $this->rateMethodFactory = $rateMethodFactory;
         $this->checkoutSession = $checkoutSession;
+        $this->helper = $helper;
     }
 
     /**
@@ -65,18 +72,23 @@ class Shippingmodule extends AbstractCarrier implements CarrierInterface
      */
     public function collectRates(RateRequest $request)
     {
-        $price = 0;
-        $payment_method = $this->checkoutSession->getQuote()->getPayment()->getMethod();
-        if ($this->checkoutSession->getEcontShippingPriceCod()) {
-            $price = $this->checkoutSession->getEcontShippingPriceCod();
-        } elseif ($payment_method != null && $payment_method === Cashondelivery::PAYMENT_METHOD_CASHONDELIVERY_CODE) {
-            $price = $this->checkoutSession->getEcontShippingPriceCod();
-        } elseif ($payment_method != null) {
-            $price = $this->checkoutSession->getEcontShippingPrice();
-        }
         if (!$this->getConfigFlag('active')) {
             return false;
         }
+
+        // The price comes from the Econt server for the customer info id from the Econt form, not from the prices
+        // that the browser sends. Until the customer confirms the form, or if Econt gives no price, it is 0 and the
+        // order is not placed (Observer\CheckShippingPrice).
+        // The quote of the rate request; the checkout session may have another one in a REST request
+        $items = $request->getAllItems();
+        $quote = $items ? reset($items)->getQuote() : $this->checkoutSession->getQuote();
+
+        $price = $this->helper->getQuoteShippingCost(
+            $this->checkoutSession,
+            $quote,
+            $request->getPackageValueWithDiscount(),
+            $request->getPackageWeight()
+        ) ?? 0;
 
         /** @var \Magento\Shipping\Model\Rate\Result $result */
         $result = $this->rateResultFactory->create();

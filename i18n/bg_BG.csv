@@ -10,3 +10,5 @@
 "Generate with Econt","Създай с Еконт"
 "Check Tracking Status","Провери статус на поръчката"
 "Check status","Провери статус"
+"You can't submit order, if shipping price is not calculated properly!","Не може да финализирате поръчка, без да сте калкулирали цената на доставка!"
+"The Econt shipping price has changed. Please review the updated total and place your order again.","Цената на доставката с Еконт се промени. Моля, прегледайте новата сума и направете поръчката отново."

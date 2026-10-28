@@ -5,7 +5,6 @@ namespace Oxl\Delivery\Model\Api;
 use \Oxl\Delivery\Api\OxlDeliveryManagementInterface;
 use \Oxl\Delivery\Model\OxlDeliveryFactory;
 use \Oxl\Delivery\Helper\DataFactory;
-use \Oxl\Delivery\Helper\Order;
 
 class OxlDeliveryManagement implements OxlDeliveryManagementInterface
 {
@@ -22,52 +21,19 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
      * @var \Oxl\Delivery\Helper\Data
      */
     protected $helper;
-
-    /**
-     * @var \Oxl\Delivery\Helper\Order
-     */
-    protected $order;
     
     /**
      * Constructor
      *
      * @param OxlDeliveryFactory $testApiFactory
      * @param DataFactory $data
-     * @param Order $order
      */
     public function __construct(
         OxlDeliveryFactory $testApiFactory,
-        DataFactory $data,
-        Order $order
+        DataFactory $data
     ) {
         $this->testApiFactory = $testApiFactory;
         $this->helper = $data;
-        $this->order = $order;
-    }
-
-    /**
-     * Get test Api data.
-     *
-     * @api
-     *
-     * @param int $id
-     *
-     * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
-     */
-    public function getApiData($id)
-    {
-        try {
-            $this->order->syncOrder(1);
-        } catch (\Magento\Framework\Exception\LocalizedException $e) {
-            $returnArray['error'] = $e->getMessage();
-            $returnArray['status'] = 0;
-            return $returnArray;
-        } catch (\Exception $e) {
-            dd($e);
-            $returnArray['error'] = __('unable to process request');
-            $returnArray['status'] = 2;
-            return $returnArray;
-        }
     }
 
     /**
@@ -101,13 +67,15 @@ class OxlDeliveryManagement implements OxlDeliveryManagementInterface
     public function setPaymentData($econt_id = null, $shipping_price = null, $shipping_price_cod = null)
     {
         $model = $this->testApiFactory->create();
-        if (! $econt_id || ! $shipping_price || ! $shipping_price_cod) {
+        if (! $econt_id) {
             return self::SEVERE_ERROR;
         }
 
+        // Only the customer info id of the confirmed Econt form is kept. The prices come from the Econt server
+        // (Helper\Data::getQuoteShippingCost), so the prices in the request are not used. The form keeps its id when
+        // the customer changes the address in it, so the prices for the id are asked again.
         $model->getCheckoutSession()->setEcontId($econt_id);
-        $model->getCheckoutSession()->setEcontShippingPrice($shipping_price);
-        $model->getCheckoutSession()->setEcontShippingPriceCod($shipping_price_cod);
+        $model->getCheckoutSession()->setEcontServerPrices(null);
 
         return self::SUCCESS;
     }

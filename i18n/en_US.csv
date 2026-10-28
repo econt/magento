@@ -10,3 +10,5 @@
 "Generate with Econt","Generate with Econt"
 "Check Tracking Status","Check Tracking Status"
 "Check status","Check status"
+"You can't submit order, if shipping price is not calculated properly!","You can't submit order, if shipping price is not calculated properly!"
+"The Econt shipping price has changed. Please review the updated total and place your order again.","The Econt shipping price has changed. Please review the updated total and place your order again."
