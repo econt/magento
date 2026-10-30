@@ -135,10 +135,8 @@ require([
     window.oxlTrackingInfo = oxlTrackingInfo;
 
     window.addEventListener( 'message', function( message ) {
-    /**
-     * check if this "message" comes from econt delivery system
-     */
-    if(message.origin.indexOf("//delivery") < 0 ){
+    // Only messages from the Econt delivery system (exact origin of the service URL)
+    if(message.origin !== new URL(oxlTrackingInfo.econtUrl).origin){
         return;
     }
       
@@ -148,7 +146,7 @@ require([
         oxlTrackingInfo.updateButtons();
         oxlTrackingInfo.closeModal();
         oxlTrackingInfo.addTrackingCode( message.data.shipmentStatus );
-        if( message.data.printPdf ) {
+        if( message.data.printPdf && /^https:\/\//i.test(message.data.shipmentStatus.pdfURL || '') ) {
             window.open( message.data.shipmentStatus.pdfURL, '_blank' )
         }      
     }    
