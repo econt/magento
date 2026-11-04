@@ -18,8 +18,9 @@
             <label>Shop Identifier</label>
             <validate>validate-number validate-zero-or-greater</validate>
           </field>
-          <field id="key" translate="label" type="password" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
+          <field id="key" translate="label" type="obscure" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Shop Secret Key</label>
+            <backend_model>Oxl\Delivery\Model\Config\Backend\PrivateKey</backend_model>
           </field>
           <field id="demo_service" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="0">
             <label>Econt Demo Service</label>
