@@ -111,27 +111,14 @@ class OxlDelivery implements OxlDeliveryInterface
     }
 
     /**
-     * Get desc.
+     * The private key of the shop, for the server-side requests to Econt (Helper\Order).
+     * Not part of OxlDeliveryInterface, so the REST route get-iframe-data does not return it.
      *
      * @return string|null
      */
     public function getPrivateKey()
     {
         return $this->helper->getConfig('carriers/econtdelivery/key');
-    }
-
-    /**
-     * Set Key.
-     *
-     * @param string $key
-     *
-     * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
-     */
-    public function setPrivateKey($key)
-    {
-        if ($key) {
-            $this->key = $this->helper->getConfig('carriers/econtdelivery/key');
-        }
     }
 
     /**
@@ -236,9 +223,6 @@ class OxlDelivery implements OxlDeliveryInterface
     public function setModel($var)
     {
         switch ($var) {
-            case "key":
-                $this->setPrivateKey(true);
-                break;
             case "shop_id":
                 $this->setEcontShopId(true);
                 break;
