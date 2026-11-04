@@ -87,8 +87,46 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getPrivateKey($encrypt = false)
     {
         $key = $this->getConfig('carriers/econtdelivery/key');
-        
+
         return $encrypt ? base64_encode($key) : $key;
+    }
+
+    /**
+     * URL of Econt's waybill form for the order. The form gets a short label session for this order
+     * from Econt (OrdersService.createLabelSession), so the private key stays on the server.
+     *
+     * @param string $order_number
+     * @return array ['url' => ...] or ['error' => ...]
+     */
+    public function getLabelUrl($order_number)
+    {
+        try {
+            $this->client->setHeaders([
+                'Content-Type' => 'application/json',
+                'Authorization' => $this->getPrivateKey()
+            ]);
+            $this->client->setOptions([
+                CURLOPT_SSL_VERIFYPEER => true,
+                CURLOPT_SSL_VERIFYHOST => 2,
+                CURLOPT_TIMEOUT => 6
+            ]);
+            $this->client->post($this->getServiceUrl() . 'services/OrdersService.createLabelSession.json', json_encode([
+                'orderNumber' => (string)$order_number
+            ]));
+            $result = json_decode((string)$this->client->getBody(), true);
+        } catch (\Exception $ex) {
+            $this->_logger->error('Econt: createLabelSession failed: ' . $ex->getMessage());
+            return ['error' => $ex->getMessage()];
+        }
+
+        if (!is_string($result) || $result === '') {
+            return ['error' => $result['message'] ?? 'Unknown error'];
+        }
+
+        return ['url' => $this->getServiceUrl() . 'create_label.php?' . http_build_query([
+            'order_number' => $order_number,
+            'token' => $result
+        ])];
     }
 
     /**

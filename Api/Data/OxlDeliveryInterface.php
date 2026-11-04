@@ -27,20 +27,8 @@ interface OxlDeliveryInterface
 
     public const ECONT_SHOP_ID = 'id_shop';
 
-    /**
-     * Get desc.
-     *
-     * @return string|null
-     */
-    public function getPrivateKey();
-
-    /**
-     * Set Desc.
-     *
-     * @param bool $key
-     * @return \Oxl\Delivery\Api\Data\OxlDeliveryInterface
-     */
-    public function setPrivateKey($key);
+    // No getter for the private key here: the anonymous REST route get-iframe-data returns this interface,
+    // and the Web API puts every getter of it in the response.
 
     /**
      * Undocumented function summary

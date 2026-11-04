@@ -6,10 +6,9 @@ define([
     'use strict';
 
     window.addEventListener('message', function (message) {
-        /**
-         * check if this "message" comes from econt delivery system
-         */
-        if (message.origin.indexOf("//delivery") < 0 ) {
+        // Only messages from the Econt form in the checkout modal (its window and the origin of its URL)
+        var frame = document.querySelector('#place_iframe_here iframe');
+        if (!frame || message.source !== frame.contentWindow || message.origin !== new URL(frame.src, window.location.href).origin) {
             return;
         }
         

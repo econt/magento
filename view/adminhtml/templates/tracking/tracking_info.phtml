@@ -12,7 +12,10 @@ require([
     var oxlTrackingInfo;
     oxlTrackingInfo = {
         econtUrl: "<?= $escaper->escapeHtml($block->helper()->getServiceUrl()) ?>",
-        econtPrivateKey: "<?= $escaper->escapeHtml($block->helper()->getPrivateKey()) ?>",
+        // The private key stays on the server: the trace and the waybill form go through these admin actions
+        traceAction: "<?= $escaper->escapeJs($block->getUrl('oxl_delivery/waybill/trace')) ?>",
+        labelUrlAction: "<?= $escaper->escapeJs($block->getUrl('oxl_delivery/waybill/labelUrl')) ?>",
+        orderId: "<?= $escaper->escapeJs($block->getOrderId()) ?>",
         template: mageTemplate('#oxl_tracking_template'),
         hasTracking: false,
         waybill_url: '',
@@ -25,34 +28,28 @@ require([
         ) {
             dwe("body").trigger('processStart');
             dwe.ajax({
-                url: this.econtUrl + 'services/OrdersService.getTrace.json',
-                data: JSON.stringify({
-                    "id": "",
-                    "orderNumber": "<?= $escaper->escapeHtml($block->getOrderId()) ?>",
-                    "status": "",
-                    "orderTime": "",
-                    "cod": "",
-                    "partialDelivery": "",
-                    // "currency": wcSettings.currency.code,
-                    "currency": currency,
-                    "shipmentDescription": "",
-                    "shipmentNumber": "",
-                }),
+                url: this.traceAction,
+                data: {
+                    order_id: this.orderId,
+                    form_key: window.FORM_KEY
+                },
                 type: "POST",
                 dataType: 'json',
-                contentType: 'application/json',
-                beforeSend: function ( xhr ) {
-                    xhr.setRequestHeader ( "Authorization", oxlTrackingInfo.econtPrivateKey );
-                },
                 success:function( e ){       
                     if ( e.shipmentNumber ) {
                         oxlTrackingInfo.updateButtons();
                         oxlTrackingInfo.addTrackingCode( e );
-                    }                    
+                    } else if ( e.type || ( e.message && e.shipmentNumber === undefined ) ) {
+                        alert( 'Отговор от Еконт: ' + e.message );
+                        if ( s && i ) {
+                            s.css('visibility', 'visible');
+                            dwe(i).removeClass('is-active');
+                        }
+                    }
                 },
                 // handle error (alert the error)
                 error: function ( error ) {
-                    alert( 'Отговор от Еконт: ' + error.responseJSON.message + "\r\nСървърен код - " + error.status + 
+                    alert( 'Отговор от Еконт: ' + error.responseText + "\r\nСървърен код - " + error.status + 
                     ' ( ' + error.statusText + ' ).');
                     if ( s && i ) {
                         s.css('visibility', 'visible');
@@ -82,16 +79,36 @@ require([
                 };            
                 dwe('#oxl-modal').modal(data);
                 dwe('#oxl-modal').modal('openModal');
-                
-                tmpl = progressTmpl({
+                dwe('#oxl-modal').empty();
+
+                // The form opens with a label session that the server gets from Econt
+                dwe.ajax({
+                    url: this.labelUrlAction,
                     data: {
-                        url: this.econtUrl,
-                        order_number: "<?= $escaper->escapeHtml($block->getOrderId()) ?>",
-                        token: this.econtPrivateKey
+                        order_id: this.orderId,
+                        form_key: window.FORM_KEY
+                    },
+                    type: "POST",
+                    dataType: 'json',
+                    success: function( e ) {
+                        if ( e.url ) {
+                            tmpl = progressTmpl({
+                                data: {
+                                    src: e.url
+                                }
+                            });
+                            dwe('#oxl-modal').append(tmpl);
+                        } else {
+                            oxlTrackingInfo.closeModal();
+                            alert( 'Отговор от Еконт: ' + ( e.error || '' ) );
+                        }
+                    },
+                    error: function ( error ) {
+                        oxlTrackingInfo.closeModal();
+                        alert( 'Отговор от Еконт: ' + error.responseText + "\r\nСървърен код - " + error.status + 
+                        ' ( ' + error.statusText + ' ).');
                     }
                 });
-                dwe('#oxl-modal').empty();
-                dwe('#oxl-modal').append(tmpl);
             }            
         },
         closeModal : function() {            
@@ -118,10 +135,8 @@ require([
     window.oxlTrackingInfo = oxlTrackingInfo;
 
     window.addEventListener( 'message', function( message ) {
-    /**
-     * check if this "message" comes from econt delivery system
-     */
-    if(message.origin.indexOf("//delivery") < 0 ){
+    // Only messages from the Econt delivery system (exact origin of the service URL)
+    if(message.origin !== new URL(oxlTrackingInfo.econtUrl).origin){
         return;
     }
       
@@ -131,7 +146,7 @@ require([
         oxlTrackingInfo.updateButtons();
         oxlTrackingInfo.closeModal();
         oxlTrackingInfo.addTrackingCode( message.data.shipmentStatus );
-        if( message.data.printPdf ) {
+        if( message.data.printPdf && /^https:\/\//i.test(message.data.shipmentStatus.pdfURL || '') ) {
             window.open( message.data.shipmentStatus.pdfURL, '_blank' )
         }      
     }    
@@ -143,7 +158,7 @@ require([
 });
 </script>
 <script id="oxl_tracking_template" type="text/x-magento-template">    
-    <iframe src="<%- data.url %>create_label.php?order_number=<%- data.order_number %>&token=<%- data.token %>" 
+    <iframe src="<%- data.src %>" 
         frameborder="0" 
         width="100%" 
         height="800px"
