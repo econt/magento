@@ -12,3 +12,5 @@
 "Check status","Check status"
 "You can't submit order, if shipping price is not calculated properly!","You can't submit order, if shipping price is not calculated properly!"
 "The Econt shipping price has changed. Please review the updated total and place your order again.","The Econt shipping price has changed. Please review the updated total and place your order again."
+"Econt did not calculate a price with cash on delivery.","Econt did not calculate a price with cash on delivery."
+"Cash on delivery is not possible for this order: %1 Please choose another payment method.","Cash on delivery is not possible for this order: %1 Please choose another payment method."

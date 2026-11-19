@@ -101,6 +101,9 @@ define([
                 orderParams.customer_post_code = address?.postcode;
                 orderParams.customer_phone = address?.telephone;
                 orderParams.ignore_history = 1;
+                // When only cash on delivery is not possible (e.g. above the legal limit for cash payments), the Econt
+                // form gives the price without it and the reason in shipment_error_cod, not an error for the whole form
+                orderParams.separate_cod_error = 1;
                 orderParams.customer_email = cdata.validatedEmailValue;
 
                 _.forEach(address?.street, function (str, index) {
@@ -132,7 +135,9 @@ define([
                     JSON.stringify({
                         econt_id: data.id,
                         shipping_price: data.shipping_price,
-                        shipping_price_cod: data.shipping_price_cod
+                        // The REST parameter is a required float: without a price with cash on delivery (Econt does
+                        // not allow it for this order) the price without it. The server takes the prices from Econt.
+                        shipping_price_cod: data.shipping_price_cod != null ? data.shipping_price_cod : data.shipping_price
                     }),
                     false
                 ).done(function (result) {
@@ -218,12 +223,14 @@ define([
                     false
                 ).done(function (result) {
                     var r;
+                    // Without a price with cash on delivery (Econt does not allow it for this order) the price without it
+                    var price = data['shipping_price_cod'] != null ? data['shipping_price_cod'] : data['shipping_price'];
                     r = _.each(result, function (res) {
                         if (res.carrier_code === 'econtdelivery') {
-                            res.amount = data['shipping_price_cod'];
-                            res.base_amount = data['shipping_price_cod'];
-                            res.price_excl_tax = data['shipping_price_cod'];
-                            res.price_incl_tax = data['shipping_price_cod'];
+                            res.amount = price;
+                            res.base_amount = price;
+                            res.price_excl_tax = price;
+                            res.price_incl_tax = price;
                         }
     
                         return res;
@@ -231,7 +238,7 @@ define([
                     
                     rateRegistry.set(address.getKey(), r);
                     shippingService.setShippingRates(r);
-                    _that.updateQuoteShippingTotals(data['shipping_price_cod']);
+                    _that.updateQuoteShippingTotals(price);
                 }).fail(function (response) {
                     shippingService.setShippingRates([]);
                     errorProcessor.process(response);

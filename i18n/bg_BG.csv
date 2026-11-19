@@ -12,3 +12,5 @@
 "Check status","Провери статус"
 "You can't submit order, if shipping price is not calculated properly!","Не може да финализирате поръчка, без да сте калкулирали цената на доставка!"
 "The Econt shipping price has changed. Please review the updated total and place your order again.","Цената на доставката с Еконт се промени. Моля, прегледайте новата сума и направете поръчката отново."
+"Econt did not calculate a price with cash on delivery.","Еконт не изчисли цена с наложен платеж."
+"Cash on delivery is not possible for this order: %1 Please choose another payment method.","Наложеният платеж не е възможен за тази поръчка: %1 Моля, изберете друг начин на плащане."
