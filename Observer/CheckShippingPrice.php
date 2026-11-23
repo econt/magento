@@ -61,6 +61,14 @@ class CheckShippingPrice implements \Magento\Framework\Event\ObserverInterface
             throw new LocalizedException(__("You can't submit order, if shipping price is not calculated properly!"));
         }
 
+        // Econt does not allow cash on delivery for this order (e.g. above the legal limit for cash payments)
+        if ($order->getPayment() && $order->getPayment()->getMethod() === 'cashondelivery') {
+            $codError = $this->helper->getQuoteCodError($this->checkoutSession, $quote);
+            if ($codError !== '') {
+                throw new LocalizedException(__('%1', $codError));
+            }
+        }
+
         if (abs($cost - (float)$order->getBaseShippingAmount()) >= 0.005) {
             $address->setCollectShippingRates(true);
             throw new LocalizedException(

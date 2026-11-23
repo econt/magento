@@ -188,6 +188,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param \Magento\Quote\Model\Quote $quote
      * @param float $total Base subtotal with discount of the shipping address
      * @param float $weight Weight of the shipping address
+     * When Econt does not allow cash on delivery (e.g. above the legal limit for cash payments), the price without it is
+     * used for every payment method; cash on delivery is not offered and not accepted (see getQuoteCodError()).
+     *
      * @param bool $fresh Ask Econt even if the prices are in the session
      * @return float|null null without a confirmed Econt form or if Econt gives no price
      */
@@ -214,19 +217,51 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             }
 
             // Like the Econt form: an order without a total has no cash on delivery
-            $priceCod = $total > 0 ? $this->getEcontPrice($customerInfoId, $total, $weight, $currency, true) : $price;
-            if ($priceCod === null) {
-                return null;
-            }
+            $codError = '';
+            $priceCod = $total > 0 ? $this->getEcontPrice($customerInfoId, $total, $weight, $currency, true, $codError) : $price;
 
-            $prices = ['price' => $price, 'price_cod' => $priceCod];
+            $prices = ['price' => $price, 'price_cod' => $priceCod, 'cod_error' => $priceCod === null ? $codError : ''];
             $checkoutSession->setEcontServerPrices(['key' => $key, 'prices' => $prices]);
         }
 
-        // Cash on delivery unless another payment method is chosen, as the checkout of the module did so far
+        // Cash on delivery unless another payment method is chosen, as the checkout of the module did so far.
+        // Without a price with cash on delivery the price without it (an order with cash on delivery is not placed).
         $paymentMethod = $quote->getPayment() ? $quote->getPayment()->getMethod() : null;
 
-        return ($paymentMethod && $paymentMethod !== 'cashondelivery') ? $prices['price'] : $prices['price_cod'];
+        return ($paymentMethod && $paymentMethod !== 'cashondelivery') ? $prices['price'] : ($prices['price_cod'] ?? $prices['price']);
+    }
+
+    /**
+     * Why Econt does not allow cash on delivery for the quote (e.g. above the legal limit for cash payments), from the
+     * prices that getQuoteShippingCost() put in the session for the same quote
+     *
+     * @param \Magento\Checkout\Model\Session $checkoutSession
+     * @param \Magento\Quote\Model\Quote $quote
+     * @return string Message for the customer, empty if cash on delivery is possible or there are no prices
+     */
+    public function getQuoteCodError($checkoutSession, $quote)
+    {
+        $address = $quote->getShippingAddress();
+        if (!$address || strpos((string)$address->getShippingMethod(), 'econtdelivery_') !== 0) {
+            return '';
+        }
+
+        // The same total and weight as Observer\CheckShippingPrice; from the session if the quote did not change
+        if ($this->getQuoteShippingCost($checkoutSession, $quote, $address->getBaseSubtotalWithDiscount(), $address->getWeight()) === null) {
+            return '';
+        }
+
+        $prices = $checkoutSession->getEcontServerPrices()['prices'] ?? null;
+        if (!is_array($prices) || !array_key_exists('price_cod', $prices) || $prices['price_cod'] !== null) {
+            return '';
+        }
+
+        $reason = trim((string)($prices['cod_error'] ?? ''));
+        if ($reason === '') {
+            $reason = (string)__('Econt did not calculate a price with cash on delivery.');
+        }
+
+        return (string)__('Cash on delivery is not possible for this order: %1 Please choose another payment method.', $reason);
     }
 
     /**
@@ -238,9 +273,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
      * @param float $weight
      * @param string $currency
      * @param bool $cod
+     * @param string $error Set to the message from Econt when there is no price
      * @return float|null null on a connection error or an error from Econt
      */
-    private function getEcontPrice($customerInfoId, $total, $weight, $currency, $cod)
+    private function getEcontPrice($customerInfoId, $total, $weight, $currency, $cod, &$error = '')
     {
         try {
             $this->client->setHeaders([
@@ -272,6 +308,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
         if ($status !== 200 || !isset($result['receiverDueAmount']) || !is_numeric($result['receiverDueAmount'])) {
             $this->_logger->error(sprintf('Econt: getPrice failed [%d] %s', $status, $result['message'] ?? ''));
+            $error = is_string($result['message'] ?? null) ? trim(strip_tags($result['message'])) : '';
             return null;
         }
 
